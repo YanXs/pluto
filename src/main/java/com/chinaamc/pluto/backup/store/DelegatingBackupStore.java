@@ -1,12 +1,7 @@
 package com.chinaamc.pluto.backup.store;
 
 import com.chinaamc.pluto.backup.Backup;
-import com.chinaamc.pluto.backup.Codec;
-import com.chinaamc.pluto.util.Configuration;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class DelegatingBackupStore implements BackupStore {

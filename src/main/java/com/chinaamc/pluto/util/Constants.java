@@ -6,6 +6,8 @@ public class Constants {
 
     public static final String PLUTO_BASE_DIR_KEY = "pluto.base.dir";
 
+    public static final String PLUTO_CONF_DIR_KEY = "pluto.conf.dir";
+
     public static final String BACKUP_BASE_DIR_KEY = "backup.dir";
 
     public static final String BACKUP_LOG_DIR = "backup.log.dir";

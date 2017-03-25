@@ -2,6 +2,8 @@ package com.chinaamc.pluto.test;
 
 import com.chinaamc.pluto.backup.Backup;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -30,7 +32,10 @@ public class JsonCodecTest {
         List<Backup> list = new ArrayList<>();
         list.add(backup);
         list.add(backup);
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .setLongSerializationPolicy(LongSerializationPolicy.STRING)
+                .setPrettyPrinting()
+                .create();
         String json = gson.toJson(list);
         System.out.println(json);
         FileUtils.writeByteArrayToFile(new File("test.data"), json.getBytes("UTF-8"));

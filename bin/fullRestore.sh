@@ -26,7 +26,7 @@ if [ -d $MYSQL_DATA_DIR ]; then
     mv $MYSQL_DATA_DIR $MYSQL_DATA_BAK_DIR
 fi
 
-sudo mkdir -p $MYSQL_DATA_DIR
+mkdir -p $MYSQL_DATA_DIR
 
 print_and_clear()
 {
@@ -50,9 +50,7 @@ innobackupex --user=root --password=root --user-memory=8G --copy-back $BASE_DIR 
 check_restore_status
 
 chown -R mysql:mysql $MYSQL_DATA_DIR
-if [ $? -eq 0 ]; then
-    /etc/init.d/mysqld start
-fi
+/etc/init.d/mysqld start
 
 print_and_clear
 echo "Restore complete : `date +%F' '%T' '%w`"

@@ -1,7 +1,7 @@
 package com.chinaamc.pluto.backup.store;
 
 import com.chinaamc.pluto.backup.Backup;
-import com.chinaamc.pluto.backup.Codec;
+import com.chinaamc.pluto.backup.BackupCodec;
 import com.chinaamc.pluto.util.BackupUtil;
 import com.chinaamc.pluto.util.Configuration;
 import org.apache.commons.collections.CollectionUtils;
@@ -22,9 +22,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
 
     private static final Random idGenerator = new Random();
 
-    private static final Codec codec = Codec.JSON;
-
-    private static final File backupDataDir = new File(Configuration.getBackupDataDirPath());
+    private static final BackupCodec codec = BackupCodec.JSON;
 
     public InMemoryBackupStore(BackupStore persistBackupStore) {
         loadBackupData(persistBackupStore);
@@ -42,7 +40,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
             }
             Backup latestBackup = backups.peekLast();
             // 备份文件(写入日志失败)
-            File latestBackupFile = BackupUtil.getLatestXtrabackupDirectory(backupDataDir);
+            File latestBackupFile = BackupUtil.getLatestXtrabackupDirectory(new File(Configuration.getBackupDataDirPath()));
             assert latestBackupFile != null;
             if (!latestBackup.getBackupDirectory().equals(latestBackupFile.getAbsolutePath())) {
                 try {
@@ -85,7 +83,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
                     .traceId(traceId)
                     .parentId(traceId)
                     .id(newId)
-                    .backupSize(backupSize / FileUtils.ONE_GB)
+                    .backupSize(backupSize / FileUtils.ONE_MB)
                     .backupDirectory(latestBackup.getAbsolutePath());
         } else {
             // poll last
@@ -104,7 +102,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
                     .traceId(traceId)
                     .id(newId)
                     .parentId(lastId)
-                    .backupSize(backupSize / FileUtils.ONE_GB)
+                    .backupSize(backupSize / FileUtils.ONE_MB)
                     .backupDirectory(latestBackup.getAbsolutePath());
         }
         if (backup.getTimestamp() == null) {
@@ -123,7 +121,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
      */
     private void recordXtrabackupLogInfo(Backup backup) {
         byte[] bytes = codec.writeBackup(backup);
-        File latestBackupDir = BackupUtil.getLatestXtrabackupDirectory(backupDataDir);
+        File latestBackupDir = BackupUtil.getLatestXtrabackupDirectory(new File(Configuration.getBackupDataDirPath()));
         File xtrabackupLogInfo = new File(Configuration.getXtrabackupLogInfoFilePath(latestBackupDir));
         try {
             FileUtils.writeByteArrayToFile(xtrabackupLogInfo, bytes);

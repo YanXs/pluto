@@ -2,21 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>备份恢复</title>
-    <link rel="stylesheet" href="js/bs-table/bootstrap.min.css">
-    <link rel="stylesheet" href="js/bs-table/bootstrap-table.css">
+    <title>备份恢复管理系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="css/login.css"/>
+    <link rel="stylesheet" type="text/css" href="css/animate-custom.css"/>
     <script src="js/bs-table/jquery.min.js"></script>
-    <script src="js/bs-table/bootstrap.min.js"></script>
-    <script src="js/bs-table/bootstrap-table.js"></script>
-    <script src="js/bs-table/bootstrap-table-zh-CN.js"></script>
-    <script src="js/index.js"></script>
+    <script src="js/jquery.form.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#loginform').on('submit', function () {
+                $(this).ajaxSubmit({
+                    success: function (data, status, xhr) {
+                        window.location.href='/'
+                    },
+                    error: function (xhr, status, error) {
+                        alert(status+':'+error)
+                    }
+                });
+                return false
+            });
+            $('#signupform').on('submit', function () {
+                $(this).ajaxSubmit({
+                    success: function (data, status, xhr) {
+                            alert('注册成功');
+                            window.location.href='login#tologin'
+                    },
+                    error: function (xhr, status, error) {
+                            alert(status+':'+error)
+                    }
+                });
+                return false
+            })
+        })
+    </script>
 </head>
 <body>
-<div class="table-responsive">
-    <div id="toolbar">
-        <button type='button' class="btn btn-danger btn-xg" id="deleteData">删除记录</button>
+<div class="container">
+    <!--<header></header>-->
+    <section style="margin-top:100px;">
+        <div id="container_demo">
+            <a class="hiddenanchor" id="toregister"></a>
+            <a class="hiddenanchor" id="tologin"></a>
+        </div>
+    </section>
+    <a href="#start-of-content" tabindex="1" class="accessibility-aid js-skip-to-content">Skip to content</a>
+
+    <div id="js-pjax-loader-bar" class="pjax-loader-bar">
+        <div class="progress"></div>
     </div>
-    <table id="table" class="table-striped table-hover" data-mobile-responsive="true"></table>
+
+    <header class="site-header js-details-container Details" role="banner">
+        <div class="container-responsive">
+            <a class="text-bold site-header-link" href="/login"
+               data-ga-click="(Logged out) Header, clicked Sign in, text:sign-in">Sign in</a>
+            <span class="text-gray">or</span>
+            <a class="text-bold site-header-link" href="/join?source=header-home"
+               data-ga-click="(Logged out) Header, clicked Sign up, text:sign-up">Sign up</a>
+        </div>
+    </header>
 </div>
 </body>
 </html>

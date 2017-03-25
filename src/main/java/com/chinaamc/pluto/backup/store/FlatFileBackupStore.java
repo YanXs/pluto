@@ -7,6 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -74,8 +75,9 @@ public class FlatFileBackupStore extends AbstractBackupStore {
         }
         try {
             FileUtils.forceDelete(new File(backup.getBackupDirectory()));
+        } catch (FileNotFoundException ignored) {
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

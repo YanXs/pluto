@@ -172,6 +172,7 @@ if [ "$1" = "start" ] ; then
         -Djava.io.tmpdir="$PLUTO_TMPDIR" \
         -Dpluto.base.dir="$PLUTO_HOME" \
         -Dpluto.conf.file="$PLUTO_CONF_DIR"/pluto.conf \
+        -Dserver.port=9092 \
         -jar "$PLUTO_HOME"/pluto.jar \
         >> "$PLUTO_OUT" 2>&1 "&"
 

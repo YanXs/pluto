@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "scheme": "all",
+    "mysqlPort": 3306,
+    "dataDir": "/data/tadata",
+    "dataBakDir": "/data/tadata_bak"
+  },
+  {
+    "id": 2,
+    "scheme": "account",
+    "mysqlPort": 3307,
+    "dataDir": "/data/tadata",
+    "dataBakDir": "/data/tadata_bak"
+  }
+]

@@ -1,0 +1,31 @@
+
+pluto:
+  server_port:9092
+
+mysql:
+  user: root
+  password: root
+
+backup:
+  dir: /backup
+  log:
+    data: backup.data
+    bak: backup.data.bak
+
+
+  script:
+    dir: ${basedir}/bin
+    full-backup: fullBackup.sh
+    full-restore: fullRestore.sh
+    database-backup: databaseBackup.sh
+    database-restore: databseRestore.sh
+    incr-backup: incrBackup.sh
+    incr-restore: incrRestore.sh
+
+xtrabackup:
+  use-memory: 8G
+  parallel: 8
+  log-info: xtrabackup_log_info
+
+zookeeper:
+  adress: 127.0.0.1:2181

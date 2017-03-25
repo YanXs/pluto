@@ -1,16 +1,38 @@
 package com.chinaamc.pluto.backup;
 
+import com.chinaamc.pluto.util.AbstractObjectCodec;
+import com.chinaamc.pluto.util.Codec;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
-public interface BackupCodec {
+public class BackupCodec extends AbstractObjectCodec<Backup> {
 
-    BackupCodec JSON = DefaultBackupCodec.JSON;
+    public static BackupCodec JSON = new BackupCodec(Codec.JSON);
 
-    byte[] writeBackup(Backup backup);
+    private static final Type BACKUP_LIST_TYPE = new TypeToken<ArrayList<Backup>>() {
+    }.getType();
 
-    byte[] writeBackups(List<Backup> backups);
 
-    Backup readBackup(byte[] bytes);
+    private BackupCodec(Codec codec) {
+        super(codec);
+    }
 
-    List<Backup> readBackups(byte[] bytes);
+    public byte[] writeBackup(Backup backup) {
+        return write(backup);
+    }
+
+    public byte[] writeBackups(List<Backup> backups) {
+        return write(backups);
+    }
+
+    public Backup readBackup(byte[] bytes) {
+        return read(bytes, Backup.class);
+    }
+
+    public List<Backup> readBackups(byte[] bytes) {
+        return readList(bytes, BACKUP_LIST_TYPE);
+    }
 }
