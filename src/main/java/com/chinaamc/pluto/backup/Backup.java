@@ -18,7 +18,9 @@ public class Backup implements Comparable<Backup> {
 
     private final Long backupSize;
 
-    private final Integer backupType;
+    private final BackupType backupType;
+
+    private final String scheme;
 
     private final String backupDirectory;
 
@@ -32,6 +34,7 @@ public class Backup implements Comparable<Backup> {
         this.duration = builder.duration;
         this.backupSize = builder.backupSize;
         this.backupType = builder.backupType;
+        this.scheme = builder.scheme;
         this.backupDirectory = builder.backupDirectory;
     }
 
@@ -67,8 +70,12 @@ public class Backup implements Comparable<Backup> {
         return backupSize;
     }
 
-    public Integer getBackupType() {
+    public BackupType getBackupType() {
         return backupType;
+    }
+
+    public String getScheme() {
+        return scheme;
     }
 
     public String getBackupDirectory() {
@@ -88,8 +95,9 @@ public class Backup implements Comparable<Backup> {
         private Long timestamp;
         private Long duration;
         private Long backupSize;
-        private Integer backupType;
+        private BackupType backupType;
         private String backupDirectory;
+        private String scheme;
 
         public Builder() {
         }
@@ -104,6 +112,7 @@ public class Backup implements Comparable<Backup> {
             this.duration = backup.duration;
             this.backupSize = backup.backupSize;
             this.backupType = backup.backupType;
+            this.scheme = backup.scheme;
             this.backupDirectory = backup.backupDirectory;
         }
 
@@ -147,8 +156,13 @@ public class Backup implements Comparable<Backup> {
             return this;
         }
 
-        public Builder backupType(Integer backupType) {
+        public Builder backupType(BackupType backupType) {
             this.backupType = backupType;
+            return this;
+        }
+
+        public Builder scheme(String scheme) {
+            this.scheme = scheme;
             return this;
         }
 
@@ -200,6 +214,7 @@ public class Backup implements Comparable<Backup> {
                 ", duration=" + duration +
                 ", backupSize=" + backupSize +
                 ", backupType=" + backupType +
+                ", scheme='" + scheme + '\'' +
                 ", backupDirectory='" + backupDirectory + '\'' +
                 '}';
     }

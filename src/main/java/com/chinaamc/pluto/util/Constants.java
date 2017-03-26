@@ -23,10 +23,6 @@ public class Constants {
 
     //----------------------------------------------------------------------------//
 
-    public static final int BACKUP_TYPE_FULL = 0;
-
-    public static final int BACKUP_TYPE_INCR = 1;
-
     public static final String WHITESPACE = " ";
 
     public static final String SCRIPT_SUCCEEDED_STATUS = "completed OK!";

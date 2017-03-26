@@ -1,6 +1,7 @@
 package com.chinaamc.pluto.test;
 
 import com.chinaamc.pluto.backup.Backup;
+import com.chinaamc.pluto.backup.BackupType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.LongSerializationPolicy;
@@ -25,7 +26,7 @@ public class JsonCodecTest {
                 .traceId(random.nextLong())
                 .id(random.nextLong())
                 .parentId(random.nextLong())
-                .backupType(0)
+                .backupType(BackupType.Full)
                 .timestamp(System.currentTimeMillis())
                 .backupDirectory("/test");
         Backup backup = builder.build();

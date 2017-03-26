@@ -2,7 +2,7 @@ package com.chinaamc.pluto;
 
 import com.chinaamc.pluto.backup.Backup;
 import com.chinaamc.pluto.backup.BackupExecutor;
-import com.chinaamc.pluto.util.Constants;
+import com.chinaamc.pluto.backup.BackupType;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -26,15 +27,21 @@ public class BackupDispatcher {
 
     @RequestMapping("full/backup")
     public GenericResult fullBackup(@RequestParam("name") String name) {
-        return doBackup(name, Constants.BACKUP_TYPE_FULL);
+        return doBackup(name, BackupType.Full, Collections.EMPTY_LIST);
     }
 
     @RequestMapping("incremental/backup")
     public GenericResult incrementalBackup(@RequestParam("name") String name) {
-        return doBackup(name, Constants.BACKUP_TYPE_INCR);
+        return doBackup(name, BackupType.Incremental, Collections.EMPTY_LIST);
     }
 
-    private GenericResult doBackup(String name, int backupType) {
+    @RequestMapping("partial/backup")
+    public GenericResult partialBackup(@RequestParam("name") String name,
+                                       @RequestParam(value = "databases[]") List<String> databases) {
+        return doBackup(name, BackupType.Partial, databases);
+    }
+
+    private GenericResult doBackup(String name, BackupType backupType, List<String> databases) {
         GenericResult result = new GenericResult();
         if (isBackingUp) {
             result.setCode(GenericResult.CODE_PENDING);
@@ -43,7 +50,7 @@ public class BackupDispatcher {
         }
         Backup.Builder builder = new Backup.Builder();
         try {
-            backupExecutor.executeBackup(builder.name(name).backupType(backupType).build());
+            backupExecutor.executeBackup(builder.name(name).backupType(backupType).build(), databases);
             result.setCode(GenericResult.CODE_OK);
             result.setMessage("backup completed");
         } catch (Exception e) {

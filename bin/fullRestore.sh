@@ -28,6 +28,30 @@ fi
 
 mkdir -p $MYSQL_DATA_DIR
 
+shutdown_mysql()
+{
+if [ `netstat -lnt | grep ${MYSQL_PORT}|wc -l` = 1 ]; then
+    echo "mysql is running..."
+    /etc/init.d/mysqld stop
+fi
+
+if [ -d $MYSQL_DATA_BAK_DIR ]; then
+    rm -rf $MYSQL_DATA_BAK_DIR
+fi
+
+if [ -d $MYSQL_DATA_DIR ]; then
+    mv $MYSQL_DATA_DIR $MYSQL_DATA_BAK_DIR
+fi
+
+mkdir -p $MYSQL_DATA_DIR
+}
+
+startup_mysql()
+{
+chown -R mysql:mysql $MYSQL_DATA_DIR
+/etc/init.d/mysqld start
+}
+
 print_and_clear()
 {
   cat $TMP_LOG

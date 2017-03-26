@@ -6,11 +6,31 @@ public class BackupEnvironment {
 
     private String scheme;
 
-    private int mysqlPort;
+    private String username;
+
+    private String password;
+
+    private int port;
 
     private String dataDir;
 
     private String dataBakDir;
+
+    private String backupDir;
+
+    private String backupLog;
+
+    private String backupLogBak;
+
+    private String xtrabackupMemory;
+
+    private String xtrabackupParallel;
+
+    private String xtrabackupLogInfo;
+
+    private String startupCommand;
+
+    private String shutdownCommand;
 
     public int getId() {
         return id;
@@ -28,12 +48,28 @@ public class BackupEnvironment {
         this.scheme = scheme;
     }
 
-    public int getMysqlPort() {
-        return mysqlPort;
+    public String getUsername() {
+        return username;
     }
 
-    public void setMysqlPort(int mysqlPort) {
-        this.mysqlPort = mysqlPort;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public String getDataDir() {
@@ -52,29 +88,67 @@ public class BackupEnvironment {
         this.dataBakDir = dataBakDir;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-
-        BackupEnvironment that = (BackupEnvironment) object;
-        return scheme.equals(that.scheme);
-
+    public String getBackupDir() {
+        return backupDir;
     }
 
-    @Override
-    public int hashCode() {
-        return scheme.hashCode();
+    public void setBackupDir(String backupDir) {
+        this.backupDir = backupDir;
     }
 
-    @Override
-    public String toString() {
-        return "BackupEnvironment{" +
-                "id='" + id + '\'' +
-                ", scheme='" + scheme + '\'' +
-                ", mysqlPort='" + mysqlPort + '\'' +
-                ", dataDir='" + dataDir + '\'' +
-                ", dataBakDir='" + dataBakDir + '\'' +
-                '}';
+    public String getBackupLog() {
+        return backupLog;
+    }
+
+    public void setBackupLog(String backupLog) {
+        this.backupLog = backupLog;
+    }
+
+    public String getBackupLogBak() {
+        return backupLogBak;
+    }
+
+    public void setBackupLogBak(String backupLogBak) {
+        this.backupLogBak = backupLogBak;
+    }
+
+    public String getXtrabackupMemory() {
+        return xtrabackupMemory;
+    }
+
+    public void setXtrabackupMemory(String xtrabackupMemory) {
+        this.xtrabackupMemory = xtrabackupMemory;
+    }
+
+    public String getXtrabackupParallel() {
+        return xtrabackupParallel;
+    }
+
+    public void setXtrabackupParallel(String xtrabackupParallel) {
+        this.xtrabackupParallel = xtrabackupParallel;
+    }
+
+    public String getXtrabackupLogInfo() {
+        return xtrabackupLogInfo;
+    }
+
+    public void setXtrabackupLogInfo(String xtrabackupLogInfo) {
+        this.xtrabackupLogInfo = xtrabackupLogInfo;
+    }
+
+    public String getStartupCommand() {
+        return startupCommand;
+    }
+
+    public void setStartupCommand(String startupCommand) {
+        this.startupCommand = startupCommand;
+    }
+
+    public String getShutdownCommand() {
+        return shutdownCommand;
+    }
+
+    public void setShutdownCommand(String shutdownCommand) {
+        this.shutdownCommand = shutdownCommand;
     }
 }

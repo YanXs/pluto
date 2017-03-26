@@ -17,7 +17,8 @@ $(function(){
         cache: false,
         pagination: true,
         sortable: false,
-        //queryParams: oTableInit.queryParams,
+        sortName:"timestamp",
+        queryParams: oTableInit.queryParams,
         sidePagination: "client",
         pageNumber:1,
         pageSize: 25,
@@ -29,7 +30,7 @@ $(function(){
         minimumCountColumns: 2,
         clickToSelect: true,
         height: tableHeight(),
-        uniqueId: "traceId",
+        uniqueId: "id",
         showToggle:false,
         cardView: false,
         detailView: false,
@@ -37,11 +38,11 @@ $(function(){
             checkbox:true
         },{
             field: 'traceId',
-            title: '交易号'
+            title: '交易号',
+            visible:false
         }, {
             field: 'id',
-            title: 'ID',
-            visible: false
+            title: 'ID'
         }, {
             field: 'parentId',
             title: '父级',

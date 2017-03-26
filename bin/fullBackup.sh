@@ -17,7 +17,7 @@ print_and_clear()
 
 echo "Backup begin... : `date +%F' '%T' '%w`"
 
-innobackupex --user=root --password=root --use-memory=8G --parallel=8 $BACKUP_DIR > $TMP_LOG  2>&1
+innobackupex --user=root --password=root --use-memory=1G --parallel=2 $BACKUP_DIR > $TMP_LOG  2>&1
 
 if [ -z "`tail -1 $TMP_LOG | grep 'completed OK!'`" ] ; then
   print_and_clear

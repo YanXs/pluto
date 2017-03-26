@@ -1,15 +1,13 @@
 package com.chinaamc.pluto.backup;
 
 import com.chinaamc.pluto.backup.store.BackupStore;
-import com.chinaamc.pluto.script.ScriptBuilder;
-import com.chinaamc.pluto.script.ScriptExecutor;
-import com.chinaamc.pluto.util.BackupUtil;
+import com.chinaamc.pluto.script.*;
 import com.chinaamc.pluto.util.Configuration;
-import com.chinaamc.pluto.util.Constants;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,36 +19,64 @@ public class BackupExecutor {
 
     private final ScriptExecutor scriptExecutor;
 
+    private final XtrabackupScriptFileBuilder scriptFileBuilder;
+
     public BackupExecutor(BackupStore backupStore) {
         this.backupStore = backupStore;
+        this.scriptFileBuilder = new XtrabackupScriptFileBuilder();
         this.scriptExecutor = new ScriptExecutor();
     }
 
-    public boolean executeBackup(Backup backup) {
-        if (CollectionUtils.isEmpty(backupStore.getBackups()) && !BackupUtil.isFullBackup(backup)) {
-            throw new IllegalStateException("first backup must be full backup");
+    public boolean executeBackup(Backup backup, List<String> databases) {
+        if (CollectionUtils.isEmpty(backupStore.getBackups()) && backup.getBackupType() == BackupType.Incremental) {
+            throw new IllegalStateException("first backup must not be incremental backup");
         }
-        return doExecuteBackup(backup);
+        return doExecuteBackup(backup, databases);
     }
 
-    private boolean doExecuteBackup(Backup backup) {
-        String backupDir = Configuration.getBackupDataDirPath();
+    private boolean doExecuteBackup(Backup backup, List<String> databases) {
         ScriptBuilder scriptBuilder;
-        if (backup.getBackupType().equals(Constants.BACKUP_TYPE_FULL)) {
-            scriptBuilder = new ScriptBuilder(Configuration.getFullBackupBashFilePath());
-            scriptBuilder.appendArg(backupDir);
-        } else {
-            scriptBuilder = new ScriptBuilder(Configuration.getIncrementalBackupBashFilePath());
-            scriptBuilder.appendArg(backupDir);
+        ScriptParameter parameter = new ScriptParameter();
+        // add common parameter
+        addCommonParameter(parameter);
+        if (backup.getBackupType() == BackupType.Full) {
+            // add backup dir
+            addBackupDirParameter(parameter);
+        } else if (backup.getBackupType() == BackupType.Incremental) {
+            // --incremental
+            ScriptParameter.Pair pair = parameter.newPair();
+            pair.key(ScriptParameter.PARAM_INCREMENTAL).valueVisible(false);
+            parameter.addPair(pair);
+
+            addBackupDirParameter(parameter);
             List<Backup> backups = backupStore.getBackups();
             if (CollectionUtils.isEmpty(backups)) {
                 throw new IllegalStateException("incremental backup should have base backup");
             }
             Backup lastBack = backups.get(backups.size() - 1);
-            scriptBuilder.appendArg(lastBack.getBackupDirectory());
+            // --incremental-basedir=$BASE_BACKUP
+            pair = parameter.newPair();
+            pair.key(ScriptParameter.PARAM_INCREMENTAL_BASE).value(lastBack.getBackupDirectory());
+        } else {
+            if (CollectionUtils.isEmpty(databases)) {
+                throw new IllegalArgumentException("databases should not be null in partial backup");
+            }
+            // add databases
+            ScriptStringBuilder builder = new ScriptStringBuilder();
+            builder.append("\"");
+            for (String database : databases) {
+                builder.appendWithWhitespace(database);
+            }
+            builder.append("\"");
+            ScriptParameter.Pair pair = parameter.newPair();
+            pair.key(ScriptParameter.PARAM_DATABASE).value(builder.toString());
+
+            addBackupDirParameter(parameter);
         }
-        // append backup name to the end of backup log file
-        scriptBuilder.appendArg(backup.getName());
+
+        File sh = scriptFileBuilder.buildBackupScriptFile(backup.getBackupType(), parameter);
+        scriptBuilder = new ScriptBuilder(sh.getPath());
+
         long start = System.currentTimeMillis();
         if (scriptExecutor.execute(scriptBuilder) == 0) {
             try {
@@ -63,6 +89,32 @@ public class BackupExecutor {
             }
         }
         return true;
+    }
+
+    private void addCommonParameter(ScriptParameter parameter) {
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        ScriptParameter.Pair pair = parameter.newPair();
+        pair.key(ScriptParameter.PARAM_USER).value(environment.getUsername());
+        parameter.addPair(pair);
+
+        pair = parameter.newPair();
+        pair.key(ScriptParameter.PARAM_PASSWORD).value(environment.getPassword());
+        parameter.addPair(pair);
+
+        pair = parameter.newPair();
+        pair.key(ScriptParameter.PARAM_MEMORY).value("4G");
+        parameter.addPair(pair);
+
+        pair = parameter.newPair();
+        pair.key(ScriptParameter.PARAM_PARALLEL).value("8");
+        parameter.addPair(pair);
+    }
+
+    private void addBackupDirParameter(ScriptParameter parameter) {
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        ScriptParameter.Pair pair = parameter.newPair();
+        pair.key(ScriptParameter.PARAM_BACKUP_DIR).keyVisible(false).value(environment.getBackupDir());
+        parameter.addPair(pair);
     }
 
     public List<Backup> getBackups() {
@@ -84,17 +136,17 @@ public class BackupExecutor {
         }
         String backupDir = Configuration.getBackupDataDirPath();
         ScriptBuilder scriptBuilder;
-        if (backup.getBackupType().equals(Constants.BACKUP_TYPE_FULL)) {
+        if (backup.getBackupType() == BackupType.Full) {
             scriptBuilder = new ScriptBuilder(Configuration.getFullRestoreBashFilePath());
             scriptBuilder.appendArg(backupDir);
-            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
-            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
-            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
+//            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
+//            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
+//            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
             scriptBuilder.appendArg(backup.getBackupDirectory());
         } else {
             String fullBackupDirectory = null;
             for (Backup backupFilter : backups) {
-                if (Objects.equals(backup.getTraceId(), backupFilter.getTraceId()) && backupFilter.getBackupType() == 0) {
+                if (Objects.equals(backup.getTraceId(), backupFilter.getTraceId()) && backupFilter.getBackupType() == BackupType.Full) {
                     fullBackupDirectory = backupFilter.getBackupDirectory();
                     break;
                 }
@@ -104,9 +156,9 @@ public class BackupExecutor {
             }
             scriptBuilder = new ScriptBuilder(Configuration.getIncrementalRestoreBashFilePath());
             scriptBuilder.appendArg(backupDir);
-            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
-            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
-            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
+//            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
+//            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
+//            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
             scriptBuilder.appendArg(backup.getBackupDirectory());
             scriptBuilder.appendArg(fullBackupDirectory);
         }

@@ -2,7 +2,7 @@ package com.chinaamc.pluto.script;
 
 public class ScriptStringBuilder {
 
-    public static final String LINEFEED = "/n";
+    public static final String LINEFEED = System.lineSeparator();
     public static final String WHITESPACE = " ";
 
     private final StringBuilder delegateBuilder = new StringBuilder();

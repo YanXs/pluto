@@ -14,11 +14,7 @@ public class Configuration {
 
     private static final Configuration CONFIGURATION = new Configuration();
 
-    private final BackupEnvironmentNavigator navigator;
-
-    private Configuration() {
-        this.navigator = new BackupEnvironmentNavigator();
-    }
+    private BackupEnvironment backupEnvironment;
 
     public static Configuration getInstance() {
         return CONFIGURATION;
@@ -36,10 +32,12 @@ public class Configuration {
         CONFIG.setProperty(key, value);
     }
 
-    public void addBackupEnvironments(List<BackupEnvironment> backupEnvironments) {
-        for (BackupEnvironment backupEnvironment : backupEnvironments) {
-            navigator.add(backupEnvironment);
-        }
+    public BackupEnvironment getBackupEnvironment() {
+        return backupEnvironment;
+    }
+
+    public void setBackupEnvironment(BackupEnvironment backupEnvironment) {
+        this.backupEnvironment = backupEnvironment;
     }
 
     /**
@@ -82,26 +80,6 @@ public class Configuration {
      */
     public static String getBackupUserFilePath() {
         return CONFIGURATION.getProperty(Constants.PLUTO_CONF_DIR_KEY) + "/pluto-users.json";
-    }
-
-    /**
-     * 获取全备份脚本路径
-     *
-     * @return
-     */
-    public static String getFullBackupBashFilePath() {
-        String scriptExecutableDir = CONFIGURATION.getProperty(Constants.SCRIPT_EXECUTABLE_DIR_KEY);
-        return scriptExecutableDir + "/fullBackup.sh";
-    }
-
-    /**
-     * 获取增量备份脚本路径
-     *
-     * @return
-     */
-    public static String getIncrementalBackupBashFilePath() {
-        String scriptExecutableDir = CONFIGURATION.getProperty(Constants.SCRIPT_EXECUTABLE_DIR_KEY);
-        return scriptExecutableDir + "/incrBackup.sh";
     }
 
     /**

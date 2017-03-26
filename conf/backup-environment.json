@@ -1,16 +1,17 @@
-[
-  {
-    "id": 1,
-    "scheme": "all",
-    "mysqlPort": 3306,
-    "dataDir": "/data/tadata",
-    "dataBakDir": "/data/tadata_bak"
-  },
-  {
-    "id": 2,
-    "scheme": "account",
-    "mysqlPort": 3307,
-    "dataDir": "/data/tadata",
-    "dataBakDir": "/data/tadata_bak"
-  }
-]
+{
+  "id": 1,
+  "scheme": "all",
+  "username": "root",
+  "password": "root",
+  "port": 3306,
+  "dataDir": "/data/tadata",
+  "dataBakDir": "/data/tadata_bak",
+  "backupDir": "/backup",
+  "backupLog": "/backup/backup.log",
+  "backupLogBak": "/backup/backup.log.bak",
+  "xtrabackupMemory": "8G",
+  "xtrabackupParallel": "8",
+  "xtrabackupLogInfo": "xtrabackup_log_info",
+  "startupCommand": "/etc/init.d/mysqld start",
+  "shutdownCommand": "/etc/init.d/mysqld stop"
+}
