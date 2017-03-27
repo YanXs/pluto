@@ -76,8 +76,8 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}\data</directory>
-            <outputDirectory>\data</outputDirectory>
+            <directory>${project.basedir}\script</directory>
+            <outputDirectory>\script</outputDirectory>
             <includes>
                 <include>*.*</include>
             </includes>

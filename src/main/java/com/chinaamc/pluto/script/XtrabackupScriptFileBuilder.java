@@ -3,6 +3,7 @@ package com.chinaamc.pluto.script;
 import com.chinaamc.pluto.backup.BackupEnvironment;
 import com.chinaamc.pluto.backup.BackupType;
 import com.chinaamc.pluto.util.Configuration;
+import com.chinaamc.pluto.util.Constants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -54,8 +55,8 @@ public class XtrabackupScriptFileBuilder {
         fileBuilder.appendWithLineFeed(createXtrabackupCommand(parameter, tmpLog));
         fileBuilder.appendWithLineFeed(FUNC_CHECK_RESULT);
         fileBuilder.appendWithLineFeed(FUNC_PRINT_AND_CLEAR);
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        String backupBashFile = tmpDir + "/" + backupType.type().toLowerCase() + "_backup.sh";
+        String scriptDir = Configuration.getInstance().getProperty(Constants.EXECUTABLE_SCRIPT_DIR_KEY);
+        String backupBashFile = scriptDir + "/" + backupType.type().toLowerCase() + "_backup.sh";
         return prepareFile(backupBashFile, fileBuilder);
     }
 

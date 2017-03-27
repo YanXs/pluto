@@ -6,6 +6,8 @@ import com.chinaamc.pluto.script.ScriptParameter;
 import com.chinaamc.pluto.script.ScriptStringBuilder;
 import com.chinaamc.pluto.script.XtrabackupScriptFileBuilder;
 import com.chinaamc.pluto.util.Configuration;
+import com.chinaamc.pluto.util.Constants;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -18,6 +20,15 @@ import java.util.List;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ScriptFileBuilderTest {
+
+    @BeforeClass
+    public static void before(){
+        String baseDir = System.getProperty(Constants.PLUTO_BASE_DIR_KEY);
+        if (!baseDir.endsWith("/")) {
+            baseDir = baseDir + "/";
+        }
+        Configuration.getInstance().setProperty(Constants.EXECUTABLE_SCRIPT_DIR_KEY, baseDir + "script");
+    }
 
     @Test
     public void test_build_full_backup_file() {

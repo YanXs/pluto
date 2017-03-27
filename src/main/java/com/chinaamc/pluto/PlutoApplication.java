@@ -45,6 +45,7 @@ public class PlutoApplication {
         }
         Configuration.getInstance().setProperty(Constants.PLUTO_BASE_DIR_KEY, baseDir);
         Configuration.getInstance().setProperty(Constants.PLUTO_CONF_DIR_KEY, baseDir + "conf");
+        Configuration.getInstance().setProperty(Constants.EXECUTABLE_SCRIPT_DIR_KEY, baseDir + "script");
     }
 
     private static final BackupEnvironmentCodec CODEC = new BackupEnvironmentCodec(Codec.JSON);

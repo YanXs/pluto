@@ -37,8 +37,8 @@ public class BackupDispatcher {
 
     @RequestMapping("partial/backup")
     public GenericResult partialBackup(@RequestParam("name") String name,
-                                       @RequestParam(value = "database") String database) {
-        return doBackup(name, BackupType.Partial, Collections.singletonList(database));
+                                       @RequestParam(value = "databases") List<String> databases) {
+        return doBackup(name, BackupType.Partial, databases);
     }
 
     private GenericResult doBackup(String name, BackupType backupType, List<String> databases) {
