@@ -1,0 +1,18 @@
+[
+  {
+    "traceId": "-5130600276355204161",
+    "id": "8184040406670175317",
+    "parentId": "3299510393768616425",
+    "timestamp": "1490151003729",
+    "backupType": 0,
+    "backupDirectory": "/test"
+  },
+  {
+    "traceId": "-5130600276355204161",
+    "id": "8184040406670175317",
+    "parentId": "3299510393768616425",
+    "timestamp": "1490151003729",
+    "backupType": 0,
+    "backupDirectory": "/test"
+  }
+]

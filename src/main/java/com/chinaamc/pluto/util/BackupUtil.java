@@ -1,5 +1,6 @@
 package com.chinaamc.pluto.util;
 
+import com.chinaamc.pluto.backup.BackupEnvironment;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.io.File;
@@ -45,5 +46,17 @@ public class BackupUtil {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 获取xtrabackup_log_info路径（备份后生成）
+     *
+     * @param baseDirectory
+     * @return
+     */
+    public static String getXtrabackupLogInfoFilePath(File baseDirectory) {
+        assert baseDirectory != null;
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        return baseDirectory.getAbsolutePath() + "/" + environment.getXtrabackupLogInfo();
     }
 }

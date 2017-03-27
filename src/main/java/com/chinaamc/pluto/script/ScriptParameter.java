@@ -31,6 +31,8 @@ public class ScriptParameter {
 
     public static final String PARAM_BACKUP_DIR = "--backup-dir";
 
+    public static final String PARAM_BASE_DIR = "--base-dir";
+
     private final Map<String, Pair> store = new LinkedHashMap<>();
 
     public void addPair(Pair pair) {

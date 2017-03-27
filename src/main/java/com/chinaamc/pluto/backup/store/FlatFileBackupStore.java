@@ -2,6 +2,7 @@ package com.chinaamc.pluto.backup.store;
 
 import com.chinaamc.pluto.backup.Backup;
 import com.chinaamc.pluto.backup.BackupCodec;
+import com.chinaamc.pluto.backup.BackupEnvironment;
 import com.chinaamc.pluto.util.Configuration;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -27,10 +28,11 @@ public class FlatFileBackupStore extends AbstractBackupStore {
     @Override
     public synchronized void save(List<Backup> backups) {
         byte[] bytes = backupCodec.writeBackups(backups);
-        File backupLogFile = new File(Configuration.getBackupLogFilePath());
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        File backupLogFile = new File(environment.getBackupLog());
         if (backupLogFile.exists()) {
             try {
-                FileUtils.copyFile(backupLogFile, new File(Configuration.getBackupLogBakFilePath()));
+                FileUtils.copyFile(backupLogFile, new File(environment.getBackupLogBak()));
                 FileUtils.writeByteArrayToFile(backupLogFile, bytes);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -51,7 +53,8 @@ public class FlatFileBackupStore extends AbstractBackupStore {
 
     @Override
     public synchronized List<Backup> getBackups() {
-        File file = new File(Configuration.getBackupLogFilePath());
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        File file = new File(environment.getBackupLog());
         if (file.exists()) {
             try {
                 byte[] bytes = FileUtils.readFileToByteArray(file);

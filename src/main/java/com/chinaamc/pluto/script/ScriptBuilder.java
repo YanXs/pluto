@@ -19,7 +19,6 @@ public class ScriptBuilder {
 
     public void appendArg(String arg) {
         builder.append(Constants.WHITESPACE).append(arg);
-
     }
 
     public String[] build() {

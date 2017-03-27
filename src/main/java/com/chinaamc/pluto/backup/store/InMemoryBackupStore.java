@@ -2,6 +2,7 @@ package com.chinaamc.pluto.backup.store;
 
 import com.chinaamc.pluto.backup.Backup;
 import com.chinaamc.pluto.backup.BackupCodec;
+import com.chinaamc.pluto.backup.BackupEnvironment;
 import com.chinaamc.pluto.util.BackupUtil;
 import com.chinaamc.pluto.util.Configuration;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,11 +41,11 @@ public class InMemoryBackupStore extends AbstractBackupStore {
             }
             Backup latestBackup = backups.peekLast();
             // 备份文件(写入日志失败)
-            File latestBackupFile = BackupUtil.getLatestXtrabackupDirectory(new File(Configuration.getBackupDataDirPath()));
+            File latestBackupFile = getLatestXtrabackupDirectory();
             assert latestBackupFile != null;
             if (!latestBackup.getBackupDirectory().equals(latestBackupFile.getAbsolutePath())) {
                 try {
-                    File xtrabackupLogInfo = new File(Configuration.getXtrabackupLogInfoFilePath(latestBackupFile));
+                    File xtrabackupLogInfo = new File(BackupUtil.getXtrabackupLogInfoFilePath(latestBackupFile));
                     if (xtrabackupLogInfo.exists()) {
                         Backup backup = codec.readBackup(FileUtils.readFileToByteArray(xtrabackupLogInfo));
                         if (backup.compareTo(latestBackup) < 0) {
@@ -63,8 +64,7 @@ public class InMemoryBackupStore extends AbstractBackupStore {
     @Override
     public synchronized long append(Backup backup) {
         long newId = 0L;
-        String backupDir = Configuration.getBackupDataDirPath();
-        File latestBackup = BackupUtil.getLatestXtrabackupDirectory(new File(backupDir));
+        File latestBackup = getLatestXtrabackupDirectory();
         if (latestBackup == null) {
             throw new IllegalStateException("latestBackup dir must not be null");
         }
@@ -121,8 +121,8 @@ public class InMemoryBackupStore extends AbstractBackupStore {
      */
     private void recordXtrabackupLogInfo(Backup backup) {
         byte[] bytes = codec.writeBackup(backup);
-        File latestBackupDir = BackupUtil.getLatestXtrabackupDirectory(new File(Configuration.getBackupDataDirPath()));
-        File xtrabackupLogInfo = new File(Configuration.getXtrabackupLogInfoFilePath(latestBackupDir));
+        File latestBackupDir = getLatestXtrabackupDirectory();
+        File xtrabackupLogInfo = new File(BackupUtil.getXtrabackupLogInfoFilePath(latestBackupDir));
         try {
             FileUtils.writeByteArrayToFile(xtrabackupLogInfo, bytes);
         } catch (IOException e) {
@@ -130,6 +130,11 @@ public class InMemoryBackupStore extends AbstractBackupStore {
         }
     }
 
+    private File getLatestXtrabackupDirectory(){
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        File backupDir = new File(environment.getBackupDir());
+        return BackupUtil.getLatestXtrabackupDirectory(backupDir);
+    }
     private void storeBackup(Backup backup) {
         backups.add(backup);
         backupStore.put(backup.getId(), backup);

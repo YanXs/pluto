@@ -1,9 +1,10 @@
 {
-  "id": 1,
   "scheme": "all",
   "username": "root",
   "password": "root",
   "port": 3306,
+  "mysqlGroup": "mysql",
+  "mysqlUser": "mysql",
   "dataDir": "/data/tadata",
   "dataBakDir": "/data/tadata_bak",
   "backupDir": "/backup",

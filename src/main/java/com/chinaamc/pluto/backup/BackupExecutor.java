@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 public class BackupExecutor {
 
@@ -37,13 +36,10 @@ public class BackupExecutor {
     private boolean doExecuteBackup(Backup backup, List<String> databases) {
         ScriptBuilder scriptBuilder;
         ScriptParameter parameter = new ScriptParameter();
-        // add common parameter
         addCommonParameter(parameter);
         if (backup.getBackupType() == BackupType.Full) {
-            // add backup dir
             addBackupDirParameter(parameter);
         } else if (backup.getBackupType() == BackupType.Incremental) {
-            // --incremental
             ScriptParameter.Pair pair = parameter.newPair();
             pair.key(ScriptParameter.PARAM_INCREMENTAL).valueVisible(false);
             parameter.addPair(pair);
@@ -54,9 +50,9 @@ public class BackupExecutor {
                 throw new IllegalStateException("incremental backup should have base backup");
             }
             Backup lastBack = backups.get(backups.size() - 1);
-            // --incremental-basedir=$BASE_BACKUP
             pair = parameter.newPair();
             pair.key(ScriptParameter.PARAM_INCREMENTAL_BASE).value(lastBack.getBackupDirectory());
+            parameter.addPair(pair);
         } else {
             if (CollectionUtils.isEmpty(databases)) {
                 throw new IllegalArgumentException("databases should not be null in partial backup");
@@ -70,7 +66,7 @@ public class BackupExecutor {
             builder.append("\"");
             ScriptParameter.Pair pair = parameter.newPair();
             pair.key(ScriptParameter.PARAM_DATABASE).value(builder.toString());
-
+            parameter.addPair(pair);
             addBackupDirParameter(parameter);
         }
 
@@ -102,11 +98,11 @@ public class BackupExecutor {
         parameter.addPair(pair);
 
         pair = parameter.newPair();
-        pair.key(ScriptParameter.PARAM_MEMORY).value("4G");
+        pair.key(ScriptParameter.PARAM_MEMORY).value(environment.getXtrabackupMemory());
         parameter.addPair(pair);
 
         pair = parameter.newPair();
-        pair.key(ScriptParameter.PARAM_PARALLEL).value("8");
+        pair.key(ScriptParameter.PARAM_PARALLEL).value(environment.getXtrabackupParallel());
         parameter.addPair(pair);
     }
 
@@ -134,37 +130,43 @@ public class BackupExecutor {
         if (backup == null) {
             throw new IllegalStateException("id dos not exist");
         }
-        String backupDir = Configuration.getBackupDataDirPath();
+        ScriptParameter scriptParameter = new ScriptParameter();
+        // add common parameter
+        addCommonParameter(scriptParameter);
         ScriptBuilder scriptBuilder;
         if (backup.getBackupType() == BackupType.Full) {
-            scriptBuilder = new ScriptBuilder(Configuration.getFullRestoreBashFilePath());
-            scriptBuilder.appendArg(backupDir);
-//            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
-//            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
-//            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
-            scriptBuilder.appendArg(backup.getBackupDirectory());
-        } else {
-            String fullBackupDirectory = null;
-            for (Backup backupFilter : backups) {
-                if (Objects.equals(backup.getTraceId(), backupFilter.getTraceId()) && backupFilter.getBackupType() == BackupType.Full) {
-                    fullBackupDirectory = backupFilter.getBackupDirectory();
-                    break;
-                }
-            }
-            if (fullBackupDirectory == null) {
-                throw new IllegalStateException("Incremental restore must have a fullBackupDirectory");
-            }
-            scriptBuilder = new ScriptBuilder(Configuration.getIncrementalRestoreBashFilePath());
-            scriptBuilder.appendArg(backupDir);
-//            scriptBuilder.appendArg(Configuration.getMysqlInstancePort());
-//            scriptBuilder.appendArg(Configuration.getMysqlDataDir());
-//            scriptBuilder.appendArg(Configuration.getMysqlDataBakDir());
-            scriptBuilder.appendArg(backup.getBackupDirectory());
-            scriptBuilder.appendArg(fullBackupDirectory);
-        }
-        int result = scriptExecutor.execute(scriptBuilder);
+            ScriptParameter.Pair pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_APPLY_LOG).valueVisible(false);
+            scriptParameter.addPair(pair);
 
-        return result == 0;
+            pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_COPY_BACK).valueVisible(false);
+            scriptParameter.addPair(pair);
+
+            pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value(backup.getBackupDirectory());
+            scriptParameter.addPair(pair);
+
+            File restoreScript = scriptFileBuilder.buildFullRestoreScriptFile(scriptParameter);
+            scriptBuilder = new ScriptBuilder(restoreScript.getPath());
+        } else if (backup.getBackupType() == BackupType.Partial) {
+            ScriptParameter.Pair pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_APPLY_LOG).valueVisible(false);
+            scriptParameter.addPair(pair);
+
+            pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_EXPORT).valueVisible(false);
+            scriptParameter.addPair(pair);
+
+            pair = scriptParameter.newPair();
+            pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value(backup.getBackupDirectory());
+            scriptParameter.addPair(pair);
+            File restoreScript = scriptFileBuilder.buildPartialRestoreScriptFile(scriptParameter);
+            scriptBuilder = new ScriptBuilder(restoreScript.getPath());
+        } else {
+            throw new UnsupportedOperationException("incremental restore unsupported");
+        }
+        return scriptExecutor.execute(scriptBuilder) == 0;
     }
 
     public void removeBackup(Long id) {

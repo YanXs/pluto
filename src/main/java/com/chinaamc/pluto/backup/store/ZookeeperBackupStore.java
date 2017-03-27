@@ -2,6 +2,7 @@ package com.chinaamc.pluto.backup.store;
 
 import com.chinaamc.pluto.backup.Backup;
 import com.chinaamc.pluto.backup.BackupCodec;
+import com.chinaamc.pluto.backup.BackupEnvironment;
 import com.chinaamc.pluto.util.Configuration;
 import com.chinaamc.pluto.util.CuratorZookeeperClient;
 import com.chinaamc.pluto.util.ZooKeeperClient;
@@ -32,7 +33,8 @@ public class ZookeeperBackupStore extends AbstractBackupStore {
     @Override
     public synchronized void save(List<Backup> backups) {
         byte[] bytes = backupCodec.writeBackups(backups);
-        String path = Configuration.getBackupLogFilePath();
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        String path = environment.getBackupLog();
         createPathIfNeeded(path);
         client.setData(path, bytes);
     }
@@ -44,7 +46,8 @@ public class ZookeeperBackupStore extends AbstractBackupStore {
 
     @Override
     public List<Backup> getBackups() {
-        String path = Configuration.getBackupLogFilePath();
+        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+        String path = environment.getBackupLog();
         createPathIfNeeded(path);
         byte[] bytes = client.getData(path);
         List<Backup> backups = backupCodec.readBackups(bytes);

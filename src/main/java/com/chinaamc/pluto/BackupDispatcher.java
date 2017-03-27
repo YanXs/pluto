@@ -37,8 +37,8 @@ public class BackupDispatcher {
 
     @RequestMapping("partial/backup")
     public GenericResult partialBackup(@RequestParam("name") String name,
-                                       @RequestParam(value = "databases[]") List<String> databases) {
-        return doBackup(name, BackupType.Partial, databases);
+                                       @RequestParam(value = "database") String database) {
+        return doBackup(name, BackupType.Partial, Collections.singletonList(database));
     }
 
     private GenericResult doBackup(String name, BackupType backupType, List<String> databases) {
@@ -71,9 +71,11 @@ public class BackupDispatcher {
             return result;
         }
         try {
+            long start = System.currentTimeMillis();
             if (backupExecutor.executeRollback(id)) {
                 result.setCode(GenericResult.CODE_OK);
-                result.setMessage("rollback completed");
+                long duration = (System.currentTimeMillis() - start) / 1000;
+                result.setMessage("rollback completed in " + duration + " seconds");
             }
         } catch (Exception e) {
             result.setCode(GenericResult.CODE_ERROR);
@@ -90,7 +92,7 @@ public class BackupDispatcher {
         List<Backup> backups = backupExecutor.getBackups();
         result.setCode(GenericResult.CODE_OK);
         if (CollectionUtils.isEmpty(backups)) {
-            result.setMessage("doesn't have any backup");
+            result.setMessage("does not have any backup");
         } else {
             result.setMessage("there are " + backups.size() + " backups");
         }

@@ -15,7 +15,8 @@ import java.io.File;
 
 public class PlutoApplication {
 
-    public static void start(String[] args) {
+    public static void start(String[] args) throws Exception {
+        initConfiguration();
         SpringApplication.run(Pluto.class, args);
     }
 
@@ -24,8 +25,6 @@ public class PlutoApplication {
         resolvePropertyFromSystem();
         // backup-environment.json
         resolveBackupEnvironment();
-        // backup restore script
-        resolveBackupScripts();
     }
 
 
@@ -45,6 +44,7 @@ public class PlutoApplication {
             baseDir = baseDir + "/";
         }
         Configuration.getInstance().setProperty(Constants.PLUTO_BASE_DIR_KEY, baseDir);
+        Configuration.getInstance().setProperty(Constants.PLUTO_CONF_DIR_KEY, baseDir + "conf");
     }
 
     private static final BackupEnvironmentCodec CODEC = new BackupEnvironmentCodec(Codec.JSON);
@@ -62,9 +62,5 @@ public class PlutoApplication {
             throw new ConfigurationException("backup-environment.json is empty");
         }
         Configuration.getInstance().setBackupEnvironment(backupEnvironment);
-    }
-
-    private static void resolveBackupScripts() throws Exception {
-
     }
 }

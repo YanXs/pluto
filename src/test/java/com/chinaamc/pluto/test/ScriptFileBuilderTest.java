@@ -1,9 +1,11 @@
 package com.chinaamc.pluto.test;
 
+import com.chinaamc.pluto.backup.BackupEnvironment;
 import com.chinaamc.pluto.backup.BackupType;
 import com.chinaamc.pluto.script.ScriptParameter;
 import com.chinaamc.pluto.script.ScriptStringBuilder;
 import com.chinaamc.pluto.script.XtrabackupScriptFileBuilder;
+import com.chinaamc.pluto.util.Configuration;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -85,8 +87,81 @@ public class ScriptFileBuilderTest {
         scriptParameter.addPair(pair);
 
         pair = scriptParameter.newPair();
-        pair.key(ScriptParameter.PARAM_BACKUP_DIR).keyVisible(false).value("C:/ta");
+        pair.key(ScriptParameter.PARAM_BACKUP_DIR).keyVisible(false).value("/ta");
         scriptParameter.addPair(pair);
         builder.buildBackupScriptFile(BackupType.Partial, scriptParameter);
+    }
+
+
+    @Test
+    public void test_build_full_restore_file() {
+        Configuration configuration = Configuration.getInstance();
+        BackupEnvironment.Builder builder = new BackupEnvironment.Builder();
+        builder.mysqlGroup("mysql")
+                .mysqlUser("mysql")
+                .dataDir("/data/tadata")
+                .dataBakDir("/data/tadata_bak")
+                .port(3306)
+                .startupCommand("/etc/init.d/mysqld start")
+                .shutdownCommand("/etc/init.d/mysqld start");
+        configuration.setBackupEnvironment(builder.build());
+        XtrabackupScriptFileBuilder xbuilder = new XtrabackupScriptFileBuilder();
+        ScriptParameter scriptParameter = new ScriptParameter();
+        ScriptParameter.Pair pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_USER).value("root");
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_PASSWORD).value("root");
+        scriptParameter.addPair(pair);
+
+        pair =scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_APPLY_LOG).valueVisible(false);
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_COPY_BACK).valueVisible(false);
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value("/backup/2017-10-03_11-22-33");
+        scriptParameter.addPair(pair);
+        xbuilder.buildFullRestoreScriptFile(scriptParameter);
+    }
+
+    @Test
+    public void test_build_partial_restore_file() {
+        Configuration configuration = Configuration.getInstance();
+        BackupEnvironment.Builder builder = new BackupEnvironment.Builder();
+        builder.mysqlGroup("mysql")
+                .mysqlUser("mysql")
+                .dataDir("/data/tadata")
+                .dataBakDir("/data/tadata_bak")
+                .port(3306)
+                .startupCommand("/etc/init.d/mysqld start")
+                .shutdownCommand("/etc/init.d/mysqld start");
+        configuration.setBackupEnvironment(builder.build());
+        XtrabackupScriptFileBuilder xbuilder = new XtrabackupScriptFileBuilder();
+        ScriptParameter scriptParameter = new ScriptParameter();
+        ScriptParameter.Pair pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_USER).value("root");
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_PASSWORD).value("root");
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_APPLY_LOG).valueVisible(false);
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_EXPORT).valueVisible(false);
+        scriptParameter.addPair(pair);
+
+        pair = scriptParameter.newPair();
+        pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value("/backup/2017-10-03_11-22-33");
+        scriptParameter.addPair(pair);
+        xbuilder.buildPartialRestoreScriptFile(scriptParameter);
     }
 }
