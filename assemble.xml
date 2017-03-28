@@ -71,7 +71,7 @@
             <directory>${project.basedir}\temp</directory>
             <outputDirectory>\temp</outputDirectory>
             <includes>
-                <include>*.*</include>
+                <include>*.temp</include>
             </includes>
         </fileSet>
 

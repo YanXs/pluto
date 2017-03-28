@@ -48,6 +48,7 @@ public class BackupDispatcher {
             result.setMessage("is backingUp, please wait");
             return result;
         }
+        isBackingUp = true;
         Backup.Builder builder = new Backup.Builder();
         try {
             backupExecutor.executeBackup(builder.name(name).backupType(backupType).build(), databases);
@@ -70,6 +71,7 @@ public class BackupDispatcher {
             result.setMessage("is restoring, please wait");
             return result;
         }
+        isRestore = true;
         try {
             long start = System.currentTimeMillis();
             if (backupExecutor.executeRollback(id)) {

@@ -57,6 +57,12 @@ public class BackupExecutor {
             if (CollectionUtils.isEmpty(databases)) {
                 throw new IllegalArgumentException("databases should not be null in partial backup");
             }
+            if (databases.size() == 1 && databases.get(0).equals("mysql")) {
+                throw new IllegalArgumentException("database to backup should contain other target except mysql");
+            }
+            if (!databases.contains("mysql")) {
+                databases.add("mysql");
+            }
             // add databases
             ScriptStringBuilder builder = new ScriptStringBuilder();
             builder.append("\"");

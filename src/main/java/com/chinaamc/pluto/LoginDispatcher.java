@@ -1,5 +1,6 @@
 package com.chinaamc.pluto;
 
+import com.chinaamc.pluto.exceptions.IncorrectInputException;
 import com.chinaamc.pluto.login.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,41 +35,45 @@ public class LoginDispatcher {
 
     @RequestMapping(value = "signUp", method = RequestMethod.POST)
     public GenericResult signUp(@RequestParam("usernamesignup") String name,
-                               @RequestParam("passwordsignup") String password) {
+                                @RequestParam("passwordsignup") String password) {
         GenericResult result = new GenericResult();
-        if (name.length() == 0 || password.length() == 0) {
-            result.setCode(GenericResult.CODE_PENDING);
-            result.setMessage("name and password cannot be empty");
-        } else if (userManager.usernameExists(name)) {
-            result.setCode(GenericResult.CODE_PENDING);
-            result.setMessage("user: [" + name + "] already registered");
-        } else {
+        try {
             userManager.createUser(name, password);
             result.setCode(GenericResult.CODE_OK);
-            result.setMessage("user: [" + name + "] registered");
+            result.setMessage("success");
+        } catch (Exception e) {
+            result.setCode(GenericResult.CODE_ERROR);
+            result.setMessage(e.getMessage());
+            e.printStackTrace();
         }
         return result;
     }
 
-    @RequestMapping(value = "signIn", method = RequestMethod.GET)
-    public ModelAndView signIn(@RequestParam("username") String name,
-                               @RequestParam("password") String password,
-                               HttpServletResponse response,
-                               HttpSession session) {
-        userManager.validateUser(name, password);
-        session.setAttribute("username", name);
-        response.setHeader("Cache-Control", "no-cache,no-store, max-age=0");
-        return new ModelAndView(new RedirectView("http://localhost:9092"));
+    @RequestMapping(value = "signIn", method = RequestMethod.POST)
+    public GenericResult signIn(@RequestParam("username") String name,
+                                @RequestParam("password") String password,
+                                HttpSession session) {
+        GenericResult result = new GenericResult();
+        try {
+            userManager.validateUser(name, password);
+            session.setAttribute("username", name);
+            result.setCode(GenericResult.CODE_OK);
+        } catch (IncorrectInputException e) {
+            result.setCode(GenericResult.CODE_ERROR);
+            result.setMessage(e.getMessage());
+        }
+        return result;
     }
 
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public ModelAndView logout(HttpServletResponse response, HttpServletRequest request) {
+    public GenericResult logout(HttpServletRequest request) {
+        GenericResult result = new GenericResult();
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.removeAttribute("username");
             session.invalidate();
         }
-        response.setHeader("Cache-Control", "no-cache,no-store, max-age=0");
-        return new ModelAndView(new RedirectView("http://localhost:9092"));
+        result.setCode(GenericResult.CODE_OK);
+        return result;
     }
 }

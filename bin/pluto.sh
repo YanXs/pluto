@@ -61,11 +61,10 @@ if [ -z "$PLUTO_OUT" ] ; then
 fi
 
 if [ -z "$PLUTO_PID" ]; then
-  PLUTO_PID="$PLUTO_DATA_DIR"/pluto.pid
+  PLUTO_PID="$PLUTO_HOME"/pluto.pid
 fi
 
 if [ -z "$PLUTO_TMPDIR" ] ; then
-  # Define the java.io.tmpdir to use for Catalina
   PLUTO_TMPDIR="$PLUTO_HOME"/temp
 fi
 
@@ -103,7 +102,6 @@ if [ "$1" = "jpda" ] ; then
   PLUTO_OPTS="$JPDA_OPTS $PLUTO_OPTS"
   shift
 fi
-
 
 remove_pid_file()
 {

@@ -1,5 +1,6 @@
 package com.chinaamc.pluto.login;
 
+import com.chinaamc.pluto.exceptions.IncorrectInputException;
 import com.chinaamc.pluto.util.EnDecryptUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +54,10 @@ public class UserManager {
         load();
         User user = store.get(username);
         if (user == null) {
-            throw new IllegalStateException("user: [" + username + "] doesn't exist");
+            throw new IncorrectInputException("user: [" + username + "] doesn't exist");
         }
         if (!password.equals(decrypt(user.getPassword()))) {
-            throw new IllegalArgumentException("wrong password");
+            throw new IncorrectInputException("wrong password");
         }
     }
 
