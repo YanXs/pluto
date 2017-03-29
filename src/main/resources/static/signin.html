@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登陆页面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/login.css" />
+    <link rel="stylesheet" type="text/css" href="css/animate-custom.css" />
+    <script src="js/bs-table/jquery.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/jquery.form.min.js"></script>
+    <script src="js/messages_zh.js"></script>
+    <script>
+        $(function(){
+            $('#signupform').validate({
+                submitHandler:function(){
+                    $('#signupform').ajaxSubmit({
+                        beforeSubmit:function(data,form,options){
+                            data.length=2;
+                        },
+                        success: function (data, status, xhr) {
+                            if(data.code=='0000'){
+                                alert(data.message);
+                                window.location.href='/login#tologin'
+                            }else{
+                                alert(data.message);
+                            }
+
+                        },
+                        error: function (xhr, status, error) {
+                            alert(status+':'+error)
+                        }
+                    });
+                    return false
+                },
+                rules:{
+                    passwordsignup_confirm:{
+                        required:true,
+                        equalTo:'#passwordsignup'
+                    }
+                },
+                messages:{
+                    passwordsignup_confirm:{
+                        required:'请再次输入密码',
+                        equalTo:'两次密码不一致'
+                    }
+                }
+
+            });
+
+            $('#loginform').on('submit',function(){
+                $(this).ajaxSubmit({
+                    success:function(data,status,xhr){
+                        if(data.code=='0000'){
+                            sessionStorage.username=$('#username').val();
+                            window.location.href='/'
+                        }else{
+                            alert(data.message);
+                        }
+                    },
+                    error:function(xhr,status,error){
+                        alert(status+':'+error)
+                    }
+                });
+                return false
+            });
+
+        })
+
+    </script>
+</head>
+<body>
+<div class="container">
+    <!--<header></header>-->
+    <section style="margin-top:100px;">
+        <div id="container_demo" >
+            <a class="hiddenanchor" id="toregister"></a>
+            <a class="hiddenanchor" id="tologin"></a>
+            <div id="wrapper">
+                <div id="login" class="animate form">
+                    <form  action="/signIn" autocomplete="on" method="post" id="loginform">
+                        <h1>登录</h1>
+                        <p>
+                            <label for="username" class="uname" data-icon="u" > 用户名称 </label>
+                            <input id="username" name="username" required="required" type="text" placeholder="请输入用户名"/>
+                        </p>
+                        <p>
+                            <label for="password" class="youpasswd" data-icon="p"> 密码 </label>
+                            <input id="password" name="password" required="required" type="password" placeholder="请输入正确密码" />
+                        </p>
+                        <p class="login button">
+                            <input type="submit" value="登录" />
+                        </p>
+                        <p class="change_link">
+                            不是注册用户 ?
+                            <a href="#toregister" class="to_register">马上注册</a>
+                        </p>
+                    </form>
+                </div>
+
+                <div id="register" class="animate form">
+                    <form  action="/signUp" autocomplete="on" method="post" id="signupform">
+                        <h1> 注册 </h1>
+                        <p>
+                            <label for="username" class="uname" data-icon="u">用户名称</label>
+                            <input id="usernamesignup" name="usernamesignup"  required="required" type="text" placeholder="请输入用户名称" />
+                        </p>
+
+                        <p>
+                            <label for="passwordsignup" class="youpasswd" data-icon="p">用户密码 </label>
+                            <input id="passwordsignup" name="passwordsignup"  required="required" type="password" placeholder="请输入用户密码"/>
+                        </p>
+                        <p>
+                            <label for="passwordsignup_confirm" class="youpasswd" data-icon="p">请确定密码 </label>
+                            <input id="passwordsignup_confirm"  name="passwordsignup_confirm" required="required" type="password" placeholder="再次输入密码"/>
+                        </p>
+                        <p class="signin button">
+                            <input type="submit" value="注册"/>
+                        </p>
+                        <p class="change_link">
+                            已经是注册用户 ?
+                            <a href="#tologin" class="to_register"> 现在就登录吧 </a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>
