@@ -34,7 +34,7 @@ $(function () {
         uniqueId: 'id',
         showToggle: false,
         cardView: false,
-        detailView: false,
+        detailView: true,
         columns: [{
             checkbox: true
         }, {
@@ -44,14 +44,6 @@ $(function () {
         }, {
             field: 'id',
             title: 'ID',
-            visible: false
-        }, {
-            field: 'parentId',
-            title: '父级',
-            visible: false
-        }, {
-            field: 'childId',
-            title: '子级',
             visible: false
         }, {
             field: 'name',
@@ -70,11 +62,36 @@ $(function () {
             title: '备份文件大小（MB）'
         }, {
             field: 'backupType',
-            title: '备份类型'
+            title: '备份类型',
+            formatter: function (value) {
+                if(value=='Partial'){
+                    return '部分备份';
+                }
+                if(value=='Full'){
+                    return '全量备份';
+                }
+                if(value=='Incremental'){
+                    return '增量备份';
+                }
+            }
         }, {
             field: 'backupDirectory',
             title: '备份路径'
-        }]
+        }],
+        onExpandRow:function(index,row,$detail){
+            if(row.backupType=='Partial'){
+                var detail=$detail.html('<p></p>').find('p');
+                if(row.databases){
+                    detail.html('数据库：'+row.databases.join(','));
+                }else{
+                    detail.html('没有数据库');
+                }
+
+            }else{
+                $table.bootstrapTable('collapseRow',index);
+            }
+
+        }
     });
     $('#logout').click(function(){
         $.ajax({
@@ -94,24 +111,161 @@ $(function () {
             selectionsIds.push(value.id)
         });
         if (!selectionsIds.length) {
-            alert('请至少选择一条数据');
+            bootbox.alert({
+                message:'请至少选择一条数据',
+                size:'small'
+            });
             return
         }
-        $.ajax({
-            url: '/pluto/delete',
-            type: 'post',
-            data: {'ids': selectionsIds},
-            success: function (result) {
-                if (result) {
-                    if (result.code=='0000') {
-                        alert('删除成功');
-                        $table.bootstrapTable('refresh')
-                    } else {
-                        alert(result.message)
-                    }
+        bootbox.confirm({
+            message: "确认删除吗",
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> 取消'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> 确认'
                 }
+            },
+            callback: function (result) {
+                if(result){
+                    $.ajax({
+                        url: '/pluto/delete',
+                        type: 'post',
+                        data: {'ids': selectionsIds},
+                        success: function (result) {
+                            if (result) {
+                                if (result.code=='0000') {
+                                    bootbox.alert({
+                                        message:'删除成功',
+                                        size:'small'
+                                    });
+                                    $table.bootstrapTable('refresh')
+                                } else {
+                                    bootbox.alert({
+                                        message:result.message,
+                                        size:'small'
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+
             }
         });
+
+    });
+    $('#rollbackData').click(function () {
+        var selections = $table.bootstrapTable('getAllSelections');
+        var selectionsIds = [];
+        $.each(selections, function (index, value) {
+            selectionsIds.push(value.id)
+        });
+        if (!selectionsIds.length) {
+            bootbox.alert({
+                message:'请至少选择一条数据',
+                size:'small'
+            });
+            $btn.button('reset');
+            return
+        }
+        if(selectionsIds.length>1){
+            bootbox.alert({
+                message:'只能选择一条数据',
+                size:'small'
+            });
+            $btn.button('reset');
+            return
+        }
+        bootbox.confirm({
+            message: "确认恢复吗",
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> 取消'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> 确认'
+                }
+            },
+            callback: function (result) {
+                if(result){
+                    var $btn=$('#rollbackData').button('loading');
+                    var dialog = bootbox.dialog({
+                        title: '恢复记录中...',
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> Loading...</p>'
+                    });
+                    $.ajax({
+                        url: '/pluto/rollback',
+                        type: 'post',
+                        data: {'id': selectionsIds[0]},
+                        success: function (result) {
+                            if (result) {
+                                $btn.button('reset');
+                                dialog.modal('hide');
+                                if (result.code=='0000') {
+                                    bootbox.alert({
+                                        message:'恢复成功',
+                                        size:'small'
+                                    });
+                                    $table.bootstrapTable('refresh')
+                                } else {
+                                    bootbox.alert({
+                                        message:result.message,
+                                        size:'small'
+                                    });
+                                }
+                            }
+                        },
+                        error:function(){
+                            $btn.button('reset');
+                            dialog.modal('hide');
+                        }
+                    });
+                }
+
+            }
+        });
+
+    });
+    $('#fullbackupData').click(function () {
+        bootbox.prompt('请输入名字',function(result){
+            if(result==null){
+                return;
+            }
+            if(result==''){
+                bootbox.alert({
+                    message:'请输入名字！！！！！！！！！！'
+                });
+                return;
+            }
+            var dialog = bootbox.dialog({
+                title: '备份文件中...',
+                message: '<p><i class="fa fa-spin fa-spinner"></i> Loading...</p>'
+            });
+            $.ajax({
+                url: '/pluto/full/backup',
+                type: 'post',
+                data: {'name': result},
+                success: function (data) {
+                    if (data) {
+                        dialog.modal('hide');
+                        if (data.code=='0000') {
+                            bootbox.alert({
+                                message:'备份成功',
+                                size:'small'
+                            });
+                            $table.bootstrapTable('refresh')
+                        } else {
+                            bootbox.alert({
+                                message:data.message,
+                                size:'small'
+                            });
+                        }
+                    }
+                }
+            });
+        })
     });
     function tableHeight() {
         return $(window).height() - 20;

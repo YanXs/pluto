@@ -4,20 +4,48 @@
     <meta charset="UTF-8">
     <title>备份恢复管理系统</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="js/bs-table/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/reset.css"/>
-    <link rel="stylesheet" type="text/css" href="css/login.css"/>
-    <link rel="stylesheet" type="text/css" href="css/animate-custom.css"/>
+    <style>
+        #h1{
+            font-family: "Trebuchet MS","Myriad Pro",Arial,sans-serif;
+            color:#fff;
+            font-size: 40px;
+            font-weight: 600;
+            border-bottom:1px solid #fff;
+            padding-bottom: 30px;
+            width:600px;
+            margin:0 auto 20px;
+            letter-spacing: 8px;
+        }
+        #h3{
+            /*font-family: "Trebuchet MS","Myriad Pro",Arial,sans-serif;*/
+            color:#fff;
+            font-size: 20px;
+            padding-bottom: 30px;
+            width:650px;
+            margin:0 auto;
+            letter-spacing: 5px;
+        }
+        a.btn{
+            font-size: 16px;
+        }
+        a.btn:hover{
+            color:#fff;
+            text-underline: none;
+        }
+    </style>
     <script src="js/bs-table/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
-    <header style="margin-top:100px;">
-        <h1 style="color:#fff">备份恢复管理系统</h1>
-        <div class="container-responsive" style="margin-top:200px;">
-            <a class="text-bold site-header-link" href="/login" style="color:#fff">登录</a>
+    <header style="margin-top:10%">
+        <h1 id="h1">备份恢复管理系统</h1>
+        <h3 id="h3">the System of Backup and Recovery Management</h3>
+        <div class="container-responsive" style="margin-top:18%">
+            <a  href="/login" class="btn">登录</a>
             <span class="text-gray">or</span>
-            <a class="text-bold site-header-link" href="/login#toregister" style="color:#fff">注册</a>
+            <a href="/login#toregister" class="btn" >注册</a>
         </div>
     </header>
 </div>

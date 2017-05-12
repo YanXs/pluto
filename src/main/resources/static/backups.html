@@ -10,6 +10,7 @@
     <script src="js/bs-table/bootstrap-table.js"></script>
     <script src="js/bs-table/bootstrap-table-zh-CN.js"></script>
     <script src="js/jquery.session.js"></script>
+    <script src="js/bootbox.js"></script>
     <script src="js/backups.js"></script>
 </head>
 <body>
@@ -30,7 +31,9 @@
 </nav>
 <div class="table-responsive">
     <div id="toolbar">
-        <button type='button' class="btn btn-danger btn-xg" id="deleteData">删除记录</button>
+        <button type='button' class="btn btn-danger btn-xg" id="deleteData">删除备份</button>
+        <button type='button' class="btn btn-primary btn-xg" id="rollbackData" data-loading-text="...正在恢复" autocomplete="off">恢复备份</button>
+        <button type='button' class="btn btn-info btn-xg" id="fullbackupData" >全量备份</button>
     </div>
     <table id="table" class="table-striped table-hover" data-mobile-responsive="true"></table>
 </div>
