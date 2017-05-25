@@ -19,43 +19,8 @@ pluto提供了全备、增量备份和部分备份的功能，pluto目前使用全量备份和恢复实现功能
   backup.log=/backup/backup.log  
   backup.log.bak=/backup/backup.log.bak  
   
-  * backup-environment.json
+  * backup-environment.json 参考conf/backup-environment.json
   
-  [
-    {
-      "instance": "mutual", //数据库实例(schema)
-      "username": "root",
-      "password": "your password",
-      "port": 3306,
-      "mysqlGroup": "amcuser", //mysql group
-      "mysqlUser": "amcuser",  // mysql user
-      "dataDir": "/data/mutual",  //mysql实例对应的data目录
-      "dataBakDir": "/data/mutaul_bak",
-      "xtrabackupMemory": "4G",
-      "xtrabackupParallel": "8",
-      "xtrabackupLogInfo": "xtrabackup_log_info",
-      "defaultsFile":"/etc/my-mutual.cnf",  //mysql配置文件
-      "startupCommand": "/etc/init.d/mysqld-mutual start", // mysql启动命令
-      "shutdownCommand": "/etc/init.d/mysqld-mutual stop"  // mysql关闭命令
-    },
-    #多实例配置
-    {
-      "instance": "hxzbta",
-      "username": "root",
-      "password": "your password",
-      "port": 3307,
-      "mysqlGroup": "amcuser",
-      "mysqlUser": "amcuser",
-      "dataDir": "/data/hxzbta",
-      "dataBakDir": "/data/hxzbta_bak",
-      "xtrabackupMemory": "4G",
-      "xtrabackupParallel": "8",
-      "xtrabackupLogInfo": "xtrabackup_log_info",
-      "defaultsFile":"/etc/my-hxzbta.cnf",
-      "startupCommand": "/etc/init.d/mysqld-hxzbta start",
-      "shutdownCommand": "/etc/init.d/mysqld-hxzbta stop"
-    }
-  ]
   
 3.cd pluto/bin   ./pluto.sh (jpda调试) start  
 4.登陆控制台 localhost:9092注册登陆到主页面进行备份恢复或者删除  
