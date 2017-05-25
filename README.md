@@ -23,7 +23,7 @@ pluto提供了全备、增量备份和部分备份的功能，pluto目前使用全量备份和恢复实现功能
   backup.log.bak=/backup/backup.log.bak  
   
   * backup-environment.json
-  ` ``
+  
   [
     {
       "instance": "mutual", //数据库实例(schema)
@@ -59,7 +59,7 @@ pluto提供了全备、增量备份和部分备份的功能，pluto目前使用全量备份和恢复实现功能
       "shutdownCommand": "/etc/init.d/mysqld-hxzbta stop"
     }
   ]
-  `
+  
 3.cd pluto/bin   ./pluto.sh (jpda调试) start  
 4.登陆控制台 localhost:9092注册登陆到主页面进行备份恢复或者删除  
 ![image]()
