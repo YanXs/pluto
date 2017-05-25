@@ -12,9 +12,6 @@ pluto提供了全备、增量备份和部分备份的功能，pluto目前使用全量备份和恢复实现功能
   * pluto.conf修改如下内容
   #tomcat监听端口  
   pluto.server.port = 9092  
-  #zk地址和dubbo端口  
-  zookeeper.address = 127.0.0.1:2181  
-  dubbo.port = 20880  
   #超时时间  
   backup.timeout = 600000  
   #备份目录和备份日志  
