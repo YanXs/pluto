@@ -156,7 +156,7 @@ $(function () {
         });
 
     });
-    $('#rollbackData').click(function () {
+    $('#restoreData').click(function () {
         var selections = $table.bootstrapTable('getAllSelections');
         var selectionsIds = [];
         $.each(selections, function (index, value) {
@@ -190,13 +190,13 @@ $(function () {
             },
             callback: function (result) {
                 if(result){
-                    var $btn=$('#rollbackData').button('loading');
+                    var $btn=$('#restoreData').button('loading');
                     var dialog = bootbox.dialog({
                         title: '恢复记录中...',
                         message: '<p><i class="fa fa-spin fa-spinner"></i> Loading...</p>'
                     });
                     $.ajax({
-                        url: '/pluto/rollback',
+                        url: '/pluto/restore',
                         type: 'post',
                         data: {'id': selectionsIds[0]},
                         success: function (result) {
@@ -229,43 +229,131 @@ $(function () {
 
     });
     $('#fullbackupData').click(function () {
-        bootbox.prompt('请输入名字',function(result){
-            if(result==null){
-                return;
-            }
-            if(result==''){
-                bootbox.alert({
-                    message:'请输入名字！！！！！！！！！！'
-                });
-                return;
-            }
-            var dialog = bootbox.dialog({
-                title: '备份文件中...',
-                message: '<p><i class="fa fa-spin fa-spinner"></i> Loading...</p>'
-            });
-            $.ajax({
-                url: '/pluto/full/backup',
-                type: 'post',
-                data: {'name': result},
-                success: function (data) {
-                    if (data) {
-                        dialog.modal('hide');
-                        if (data.code=='0000') {
-                            bootbox.alert({
-                                message:'备份成功',
-                                size:'small'
+        $.ajax({
+            url: '/pluto/instances',
+            type: 'get',
+            success: function (data) {
+                if (data.content) {
+                    var option=[];
+                    $.each(data.content, function (index, values) {
+                        option[index]={};
+                        option[index].value=values;
+                        option[index].text=values;
+                    });
+                    bootbox.prompt({
+                        title: "请输入名字及选择数据库",
+                        inputType: 'select',
+                        inputOptions: option,
+                        callback: function (result) {
+                            console.log(result);
+                            if(result==null){
+                                return;
+                            }
+                            if(result.text==''){
+                                bootbox.alert({
+                                    message:'请输入名字！！！！！！！！！！'
+                                });
+                                return;
+                            }
+                            if(!result.selection){
+                                bootbox.alert({
+                                    message:'请选择数据库！！！！！！！！！！'
+                                });
+                                return;
+                            }
+                            var dialog = bootbox.dialog({
+                                title: '备份文件中...',
+                                message: '<p><i class="fa fa-spin fa-spinner"></i> Backing up...</p>'
                             });
-                            $table.bootstrapTable('refresh')
-                        } else {
-                            bootbox.alert({
-                                message:data.message,
-                                size:'small'
+                            $.ajax({
+                                url: '/pluto/full/backup',
+                                type: 'post',
+                                data: {'name': result.text, 'databases':result.selection},
+                                success: function (data) {
+                                    if (data) {
+                                        dialog.modal('hide');
+                                        if (data.code=='0000') {
+                                            bootbox.alert({
+                                                message:'备份成功',
+                                                size:'small'
+                                            });
+                                            $table.bootstrapTable('refresh')
+                                        } else {
+                                            bootbox.alert({
+                                                message:data.message,
+                                                size:'small'
+                                            });
+                                        }
+                                    }
+                                }
                             });
                         }
-                    }
+                    });
                 }
-            });
-        })
+            },
+            error:function(data){
+                alert('参数出错'+data);
+            }
+        });
+
+    });
+    $('#partialBackupData').click(function(){
+        var data=[1,2,3];
+        var option=[];
+        $.each(data, function (index, values) {
+            option[index]={};
+            option[index].value=values;
+            option[index].text=values;
+        });
+        bootbox.prompt({
+            title: "请输入名字及选择数据库",
+            inputType: 'select',
+            inputOptions: option,
+            callback: function (result) {
+                console.log(result);
+                if(result==null){
+                    return;
+                }
+                if(result.text==''){
+                            bootbox.alert({
+                                message:'请输入名字！！！！！！！！！！'
+                            });
+                            return;
+                        }
+                if(!result.selection){
+                    bootbox.alert({
+                        message:'请选择数据库！！！！！！！！！！'
+                    });
+                    return;
+                }
+                var dialog = bootbox.dialog({
+                    title: '备份文件中...',
+                    message: '<p><i class="fa fa-spin fa-spinner"></i> Backing up...</p>'
+                });
+                $.ajax({
+                    url: '/pluto/partial/backup',
+                    type: 'post',
+                    data: {'name': result.text, 'databases':result.checkbox},
+                    success: function (data) {
+                        if (data) {
+                            dialog.modal('hide');
+                            if (data.code=='0000') {
+                                bootbox.alert({
+                                    message:'备份成功',
+                                    size:'small'
+                                });
+                                $table.bootstrapTable('refresh')
+                            } else {
+                                bootbox.alert({
+                                    message:data.message,
+                                    size:'small'
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        });
     });
     function tableHeight() {
         return $(window).height() - 20;

@@ -54,9 +54,8 @@ public class BackupUtil {
      * @param baseDirectory
      * @return
      */
-    public static String getXtrabackupLogInfoFilePath(File baseDirectory) {
+    public static String getXtrabackupLogInfoFilePath(File baseDirectory, BackupEnvironment environment) {
         assert baseDirectory != null;
-        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
         return baseDirectory.getAbsolutePath() + "/" + environment.getXtrabackupLogInfo();
     }
 }

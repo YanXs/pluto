@@ -20,20 +20,26 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><strong id="username"></strong> <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false"><strong id="username"></strong> <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li id="logout"><a href="#">退出</a></li>
                     </ul>
                 </li>
             </ul>
-        </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
 </nav>
 <div class="table-responsive">
     <div id="toolbar">
         <button type='button' class="btn btn-danger btn-xg" id="deleteData">删除备份</button>
-        <button type='button' class="btn btn-primary btn-xg" id="rollbackData" data-loading-text="...正在恢复" autocomplete="off">恢复备份</button>
-        <button type='button' class="btn btn-info btn-xg" id="fullbackupData" >全量备份</button>
+        <button type='button' class="btn btn-primary btn-xg" id="restoreData" data-loading-text="...正在恢复"
+                autocomplete="off">恢复备份
+        </button>
+        <button type='button' class="btn btn-info btn-xg" id="fullbackupData">全量备份</button>
+        <!--<button type='button' class="btn btn-success btn-xg" id="partialBackupData">部分备份</button>-->
     </div>
     <table id="table" class="table-striped table-hover" data-mobile-responsive="true"></table>
 </div>

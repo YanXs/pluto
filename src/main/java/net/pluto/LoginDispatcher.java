@@ -1,5 +1,6 @@
 package net.pluto;
 
+import com.chinaamc.ta.util.GenericResult;
 import net.pluto.exceptions.IncorrectInputException;
 import net.pluto.login.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,6 +3,7 @@ package net.pluto.backup;
 import net.pluto.backup.store.BackupStore;
 import net.pluto.script.*;
 import net.pluto.util.Configuration;
+import net.pluto.util.Constants;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,14 @@ public class BackupExecutor {
 
     private final BackupStore backupStore;
 
-    private final ScriptEngine scriptEngine;
+    private final ScriptExecutor scriptExecutor;
 
     private final XtrabackupScriptFileBuilder scriptFileBuilder;
 
     public BackupExecutor(BackupStore backupStore) {
         this.backupStore = backupStore;
         this.scriptFileBuilder = new XtrabackupScriptFileBuilder();
-        this.scriptEngine = new ScriptEngine();
+        this.scriptExecutor = new ScriptExecutor();
     }
 
     public boolean executeBackup(Backup backup, List<String> databases) {
@@ -36,7 +37,8 @@ public class BackupExecutor {
     private boolean doExecuteBackup(Backup backup, List<String> databases) {
         ScriptBuilder scriptBuilder;
         ScriptParameter parameter = new ScriptParameter();
-        addCommonParameter(parameter);
+        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment(backup.getInstance());
+        addCommonParameter(parameter, backupEnvironment);
         if (backup.getBackupType() == BackupType.Full) {
             addBackupDirParameter(parameter);
         } else if (backup.getBackupType() == BackupType.Incremental) {
@@ -60,9 +62,6 @@ public class BackupExecutor {
             if (databases.size() == 1 && databases.get(0).equals("mysql")) {
                 throw new IllegalArgumentException("database to backup should contain other target except mysql");
             }
-            if (!databases.contains("mysql")) {
-                databases.add("mysql");
-            }
             // add databases
             ScriptStringBuilder builder = new ScriptStringBuilder();
             builder.append("\"");
@@ -80,10 +79,13 @@ public class BackupExecutor {
         scriptBuilder = new ScriptBuilder(sh.getPath());
 
         long start = System.currentTimeMillis();
-        if (scriptEngine.execute(scriptBuilder) == 0) {
+        if (scriptExecutor.execute(scriptBuilder) == 0) {
             try {
                 Backup.Builder builder = backup.newBuilder();
                 builder.duration(getDuration(start));
+                if (databases != null) {
+                    builder.databases(databases);
+                }
                 backupStore.append(builder.build());
             } catch (Exception e) {
                 LOGGER.error("append backup failed", e);
@@ -93,9 +95,12 @@ public class BackupExecutor {
         return true;
     }
 
-    private void addCommonParameter(ScriptParameter parameter) {
-        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
+    private void addCommonParameter(ScriptParameter parameter, BackupEnvironment environment) {
         ScriptParameter.Pair pair = parameter.newPair();
+        pair.key(ScriptParameter.DEFAULTS_FILE).value(environment.getDefaultsFile());
+        parameter.addPair(pair);
+        pair = parameter.newPair();
+
         pair.key(ScriptParameter.PARAM_USER).value(environment.getUsername());
         parameter.addPair(pair);
 
@@ -113,9 +118,11 @@ public class BackupExecutor {
     }
 
     private void addBackupDirParameter(ScriptParameter parameter) {
-        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
         ScriptParameter.Pair pair = parameter.newPair();
-        pair.key(ScriptParameter.PARAM_BACKUP_DIR).keyVisible(false).value(environment.getBackupDir());
+        pair
+                .key(ScriptParameter.PARAM_BACKUP_DIR)
+                .keyVisible(false)
+                .value(Configuration.getInstance().getProperty(Constants.BACKUP_DIR_KEY));
         parameter.addPair(pair);
     }
 
@@ -123,11 +130,15 @@ public class BackupExecutor {
         return backupStore.getBackups();
     }
 
+    public List<String> getBackupNames() {
+        return backupStore.getBackupNames();
+    }
+
     private Long getDuration(long start) {
         return (System.currentTimeMillis() - start) / 1000;
     }
 
-    public boolean executeRollback(String id) {
+    public boolean executeRestore(String id) {
         List<Backup> backups = backupStore.getBackups();
         if (backups == null) {
             throw new IllegalStateException("there is no backups");
@@ -137,8 +148,9 @@ public class BackupExecutor {
             throw new IllegalStateException("id dos not exist");
         }
         ScriptParameter scriptParameter = new ScriptParameter();
+        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment(backup.getInstance());
         // add common parameter
-        addCommonParameter(scriptParameter);
+        addCommonParameter(scriptParameter, backupEnvironment);
         ScriptBuilder scriptBuilder;
         if (backup.getBackupType() == BackupType.Full) {
             ScriptParameter.Pair pair = scriptParameter.newPair();
@@ -153,7 +165,7 @@ public class BackupExecutor {
             pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value(backup.getBackupDirectory());
             scriptParameter.addPair(pair);
 
-            File restoreScript = scriptFileBuilder.buildFullRestoreScriptFile(scriptParameter);
+            File restoreScript = scriptFileBuilder.buildFullRestoreScriptFile(scriptParameter, backupEnvironment);
             scriptBuilder = new ScriptBuilder(restoreScript.getPath());
         } else if (backup.getBackupType() == BackupType.Partial) {
             ScriptParameter.Pair pair = scriptParameter.newPair();
@@ -167,12 +179,12 @@ public class BackupExecutor {
             pair = scriptParameter.newPair();
             pair.key(ScriptParameter.PARAM_BASE_DIR).keyVisible(false).value(backup.getBackupDirectory());
             scriptParameter.addPair(pair);
-            File restoreScript = scriptFileBuilder.buildPartialRestoreScriptFile(scriptParameter);
+            File restoreScript = scriptFileBuilder.buildPartialRestoreScriptFile(scriptParameter, backupEnvironment);
             scriptBuilder = new ScriptBuilder(restoreScript.getPath());
         } else {
             throw new UnsupportedOperationException("incremental restore unsupported");
         }
-        return scriptEngine.execute(scriptBuilder) == 0;
+        return scriptExecutor.execute(scriptBuilder) == 0;
     }
 
     public void removeBackup(Long id) {

@@ -1,6 +1,9 @@
 package net.pluto.backup;
 
-public class Backup implements Comparable<Backup> {
+import java.io.Serializable;
+import java.util.List;
+
+public class Backup implements Comparable<Backup>, Serializable {
 
     private final Long traceId;
 
@@ -20,9 +23,11 @@ public class Backup implements Comparable<Backup> {
 
     private final BackupType backupType;
 
-    private final String scheme;
+    private final String instance;
 
     private final String backupDirectory;
+
+    private final List<String> databases;
 
     private Backup(Builder builder) {
         this.traceId = builder.traceId;
@@ -34,8 +39,9 @@ public class Backup implements Comparable<Backup> {
         this.duration = builder.duration;
         this.backupSize = builder.backupSize;
         this.backupType = builder.backupType;
-        this.scheme = builder.scheme;
+        this.instance = builder.instance;
         this.backupDirectory = builder.backupDirectory;
+        this.databases = builder.databases;
     }
 
     public Long getTraceId() {
@@ -74,12 +80,16 @@ public class Backup implements Comparable<Backup> {
         return backupType;
     }
 
-    public String getScheme() {
-        return scheme;
+    public String getInstance() {
+        return instance;
     }
 
     public String getBackupDirectory() {
         return backupDirectory;
+    }
+
+    public List<String> getDatabases() {
+        return databases;
     }
 
     public Builder newBuilder() {
@@ -97,7 +107,8 @@ public class Backup implements Comparable<Backup> {
         private Long backupSize;
         private BackupType backupType;
         private String backupDirectory;
-        private String scheme;
+        private String instance;
+        private List<String> databases;
 
         public Builder() {
         }
@@ -112,8 +123,9 @@ public class Backup implements Comparable<Backup> {
             this.duration = backup.duration;
             this.backupSize = backup.backupSize;
             this.backupType = backup.backupType;
-            this.scheme = backup.scheme;
+            this.instance = backup.instance;
             this.backupDirectory = backup.backupDirectory;
+            this.databases = backup.databases;
         }
 
         public Builder traceId(Long traceId) {
@@ -161,13 +173,18 @@ public class Backup implements Comparable<Backup> {
             return this;
         }
 
-        public Builder scheme(String scheme) {
-            this.scheme = scheme;
+        public Builder instance(String instance) {
+            this.instance = instance;
             return this;
         }
 
         public Builder backupDirectory(String backupDirectory) {
             this.backupDirectory = backupDirectory;
+            return this;
+        }
+
+        public Builder databases(List<String> databases) {
+            this.databases = databases;
             return this;
         }
 
@@ -191,7 +208,6 @@ public class Backup implements Comparable<Backup> {
         if (!id.equals(backup.id)) return false;
         if (!name.equals(backup.name)) return false;
         return timestamp.equals(backup.timestamp);
-
     }
 
     @Override
@@ -214,8 +230,9 @@ public class Backup implements Comparable<Backup> {
                 ", duration=" + duration +
                 ", backupSize=" + backupSize +
                 ", backupType=" + backupType +
-                ", scheme='" + scheme + '\'' +
+                ", instance='" + instance + '\'' +
                 ", backupDirectory='" + backupDirectory + '\'' +
+                ", databases=" + databases +
                 '}';
     }
 }

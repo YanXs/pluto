@@ -1,18 +1,34 @@
-{
-  "scheme": "all",
-  "username": "root",
-  "password": "root",
-  "port": 3306,
-  "mysqlGroup": "mysql",
-  "mysqlUser": "mysql",
-  "dataDir": "/data/tadata",
-  "dataBakDir": "/data/tadata_bak",
-  "backupDir": "/backup",
-  "backupLog": "/backup/backup.log",
-  "backupLogBak": "/backup/backup.log.bak",
-  "xtrabackupMemory": "8G",
-  "xtrabackupParallel": "8",
-  "xtrabackupLogInfo": "xtrabackup_log_info",
-  "startupCommand": "/etc/init.d/mysqld start",
-  "shutdownCommand": "/etc/init.d/mysqld stop"
-}
+[
+  {
+    "instance": "test1",
+    "username": "name1",
+    "password": "password1",
+    "port": 3306,
+    "mysqlGroup": "test1group",
+    "mysqlUser": "test1user",
+    "dataDir": "/data/test1",
+    "dataBakDir": "/data/test1_bak",
+    "xtrabackupMemory": "4G",
+    "xtrabackupParallel": "8",
+    "xtrabackupLogInfo": "xtrabackup_log_info",
+    "defaultsFile":"/etc/my-test1.cnf",
+    "startupCommand": "/etc/init.d/mysqld-test1 start",
+    "shutdownCommand": "/etc/init.d/mysqld-test1 stop"
+  },
+  {
+    "instance": "test2",
+    "username": "name2",
+    "password": "password2",
+    "port": 3307,
+    "mysqlGroup": "test2group",
+    "mysqlUser": "test2user",
+    "dataDir": "/data/test2",
+    "dataBakDir": "/data/test2_bak",
+    "xtrabackupMemory": "4G",
+    "xtrabackupParallel": "8",
+    "xtrabackupLogInfo": "xtrabackup_log_info",
+    "defaultsFile":"/etc/my-test2.cnf",
+    "startupCommand": "/etc/init.d/mysqld-test2 start",
+    "shutdownCommand": "/etc/init.d/mysqld-test2 stop"
+  }
+]

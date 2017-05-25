@@ -5,10 +5,12 @@
     <title>登陆页面</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="js/bs-table/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" href="css/login.css" />
     <link rel="stylesheet" type="text/css" href="css/animate-custom.css" />
     <script src="js/bs-table/jquery.min.js"></script>
+    <script src="js/bs-table/bootstrap.min.js"></script>
     <script src="js/jquery.validate.min.js"></script>
     <script src="js/jquery.form.min.js"></script>
     <script src="js/messages_zh.js"></script>
@@ -24,13 +26,13 @@
                         success: function (data, status, xhr) {
                             if(data.code=='0000'){
                                 bootbox.alert({
-                                    message:data.message,
+                                    message:'注册成功',
                                     size:'small'
                                 });
                                 window.location.href='/login#tologin'
                             }else{
                                 bootbox.alert({
-                                    message:data.message,
+                                    message:'注册失败',
                                     size:'small'
                                 });
                             }

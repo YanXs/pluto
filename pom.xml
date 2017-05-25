@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.pluto</groupId>
+    <groupId>com.chinaamc</groupId>
     <artifactId>pluto</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
-        <start-class>net.pluto.Pluto</start-class>
+        <start-class>com.chinaamc.pluto.Pluto</start-class>
         <spring.version>4.3.3.RELEASE</spring.version>
         <spring.boot.version>1.3.6.RELEASE</spring.boot.version>
         <zookeeper.version>3.4.6</zookeeper.version>
@@ -17,6 +17,17 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.chinaamc.ta</groupId>
+            <artifactId>ta-service-provider</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chinaamc.ta</groupId>
+            <artifactId>ta-util</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
@@ -118,10 +129,31 @@
         </dependency>
 
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>2.8.5-Alpha</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-expression</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.curator</groupId>
+                    <artifactId>curator-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -154,6 +186,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
@@ -163,6 +196,7 @@
                         </goals>
                     </execution>
                 </executions>
+                <version>2.4</version>
             </plugin>
 
             <plugin>
@@ -190,4 +224,18 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>deploy-file</id>
+            <repositories>
+                <repository>
+                    <id>3rd-snapshot</id>
+                    <url>http://10.16.0.71/content/repositories/3rd-snapshot</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 </project>

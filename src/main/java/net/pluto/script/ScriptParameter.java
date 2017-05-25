@@ -9,6 +9,8 @@ import java.util.Map;
  */
 public class ScriptParameter {
 
+    public static final String DEFAULTS_FILE = "--defaults-file";
+
     public static final String PARAM_USER = "--user";
 
     public static final String PARAM_PASSWORD = "--password";

@@ -1,8 +1,8 @@
 package net.pluto.backup;
 
+import com.google.gson.reflect.TypeToken;
 import net.pluto.util.AbstractObjectCodec;
 import net.pluto.util.Codec;
-import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

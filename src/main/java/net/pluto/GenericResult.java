@@ -1,6 +1,8 @@
 package net.pluto;
 
-public class GenericResult {
+import java.io.Serializable;
+
+public class GenericResult implements Serializable{
 
     public static final String CODE_OK = "0000";
 
@@ -13,6 +15,7 @@ public class GenericResult {
     private String message;
 
     private Object content;
+
 
     public String getCode() {
         return code;

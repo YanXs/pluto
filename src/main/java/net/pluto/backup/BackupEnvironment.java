@@ -2,7 +2,7 @@ package net.pluto.backup;
 
 public class BackupEnvironment {
 
-    private final String scheme;
+    private final String instance;
 
     private final String username;
 
@@ -18,24 +18,20 @@ public class BackupEnvironment {
 
     private final String dataBakDir;
 
-    private final String backupDir;
-
-    private final String backupLog;
-
-    private final String backupLogBak;
-
     private final String xtrabackupMemory;
 
     private final String xtrabackupParallel;
 
     private final String xtrabackupLogInfo;
 
+    private final String defaultsFile;
+
     private final String startupCommand;
 
     private final String shutdownCommand;
 
     public BackupEnvironment(Builder builder) {
-        this.scheme = builder.scheme;
+        this.instance = builder.instance;
         this.username = builder.username;
         this.password = builder.password;
         this.port = builder.port;
@@ -43,18 +39,16 @@ public class BackupEnvironment {
         this.mysqlUser = builder.mysqlUser;
         this.dataDir = builder.dataDir;
         this.dataBakDir = builder.dataBakDir;
-        this.backupDir = builder.backupDir;
-        this.backupLog = builder.backupLog;
-        this.backupLogBak = builder.backupLogBak;
         this.xtrabackupMemory = builder.xtrabackupMemory;
         this.xtrabackupParallel = builder.xtrabackupParallel;
         this.xtrabackupLogInfo = builder.xtrabackupLogInfo;
+        this.defaultsFile = builder.defaultsFile;
         this.startupCommand = builder.startupCommand;
         this.shutdownCommand = builder.shutdownCommand;
     }
 
     public static class Builder {
-        private String scheme;
+        private String instance;
         private String username;
         private String password;
         private int port;
@@ -62,20 +56,18 @@ public class BackupEnvironment {
         private String mysqlUser;
         private String dataDir;
         private String dataBakDir;
-        private String backupDir;
-        private String backupLog;
-        private String backupLogBak;
         private String xtrabackupMemory;
         private String xtrabackupParallel;
         private String xtrabackupLogInfo;
+        private String defaultsFile;
         private String startupCommand;
         private String shutdownCommand;
 
         public Builder() {
         }
 
-        public Builder scheme(String scheme) {
-            this.scheme = scheme;
+        public Builder instance(String instance) {
+            this.instance = instance;
             return this;
         }
 
@@ -114,21 +106,6 @@ public class BackupEnvironment {
             return this;
         }
 
-        public Builder backupDir(String backupDir) {
-            this.backupDir = backupDir;
-            return this;
-        }
-
-        public Builder backupLog(String backupLog) {
-            this.backupLog = backupLog;
-            return this;
-        }
-
-        public Builder backLogBak(String backupLogBak) {
-            this.backupLogBak = backupLogBak;
-            return this;
-        }
-
         public Builder xtrabackupMemory(String xtrabackupMemory) {
             this.xtrabackupMemory = xtrabackupMemory;
             return this;
@@ -141,6 +118,11 @@ public class BackupEnvironment {
 
         public Builder xtrabackupLogInfo(String xtrabackupLogInfo) {
             this.xtrabackupLogInfo = xtrabackupLogInfo;
+            return this;
+        }
+
+        public Builder defaultsFile(String defaultsFile) {
+            this.defaultsFile = defaultsFile;
             return this;
         }
 
@@ -159,8 +141,8 @@ public class BackupEnvironment {
         }
     }
 
-    public String getScheme() {
-        return scheme;
+    public String getInstance() {
+        return instance;
     }
 
     public String getUsername() {
@@ -191,18 +173,6 @@ public class BackupEnvironment {
         return dataBakDir;
     }
 
-    public String getBackupDir() {
-        return backupDir;
-    }
-
-    public String getBackupLog() {
-        return backupLog;
-    }
-
-    public String getBackupLogBak() {
-        return backupLogBak;
-    }
-
     public String getXtrabackupMemory() {
         return xtrabackupMemory;
     }
@@ -213,6 +183,11 @@ public class BackupEnvironment {
 
     public String getXtrabackupLogInfo() {
         return xtrabackupLogInfo;
+    }
+
+
+    public String getDefaultsFile() {
+        return defaultsFile;
     }
 
     public String getStartupCommand() {

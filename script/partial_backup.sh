@@ -1,18 +1,18 @@
 #!/bin/sh
 print_and_clear()
 {
-cat F:/project/pluto/temp/1490797049041.tmp
-rm -rf F:/project/pluto/temp/1490797049041.tmp
+cat E:/project/CORE_TA/pluto/temp/1495175258552.tmp
+rm -rf E:/project/CORE_TA/pluto/temp/1495175258552.tmp
 }
 
 check_result()
 {
-if [ -z "`tail -1 F:/project/pluto/temp/1490797049041.tmp| grep 'completed OK!'`" ] ; then
+if [ -z "`tail -1 E:/project/CORE_TA/pluto/temp/1495175258552.tmp| grep 'completed OK!'`" ] ; then
 print_and_clear
 exit 1
 fi
 }
 
-innobackupex --user=root --password=root --databases="account mutual " /tmp > F:/project/pluto/temp/1490797049041.tmp 2>&1 
+innobackupex --user=root --password=root --databases="account mutual " /ta > E:/project/CORE_TA/pluto/temp/1495175258552.tmp 2>&1 
 check_result
 print_and_clear

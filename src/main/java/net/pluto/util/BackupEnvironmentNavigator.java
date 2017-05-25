@@ -2,6 +2,7 @@ package net.pluto.util;
 
 import net.pluto.backup.BackupEnvironment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +12,16 @@ public class BackupEnvironmentNavigator {
 
 
     public void add(BackupEnvironment backupEnvironment) {
-        navigator.put(backupEnvironment.getScheme(), backupEnvironment);
+        navigator.put(backupEnvironment.getInstance(), backupEnvironment);
     }
 
     public BackupEnvironment get(String key) {
         return navigator.get(key);
+    }
+
+
+    public Collection<BackupEnvironment> backupEnvironments() {
+        return navigator.values();
     }
 
     static class StrictMap<K, V> extends HashMap<K, V> {

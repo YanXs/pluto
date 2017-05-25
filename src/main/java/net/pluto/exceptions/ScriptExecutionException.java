@@ -1,6 +1,6 @@
 package net.pluto.exceptions;
 
-public class ScriptExecutionException extends RuntimeException{
+public class ScriptExecutionException extends RuntimeException {
     public ScriptExecutionException(String message) {
         super(message);
     }

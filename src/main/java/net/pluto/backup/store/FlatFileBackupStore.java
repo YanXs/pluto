@@ -2,8 +2,8 @@ package net.pluto.backup.store;
 
 import net.pluto.backup.Backup;
 import net.pluto.backup.BackupCodec;
-import net.pluto.backup.BackupEnvironment;
 import net.pluto.util.Configuration;
+import net.pluto.util.Constants;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -28,11 +28,10 @@ public class FlatFileBackupStore extends AbstractBackupStore {
     @Override
     public synchronized void save(List<Backup> backups) {
         byte[] bytes = backupCodec.writeBackups(backups);
-        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
-        File backupLogFile = new File(environment.getBackupLog());
+        File backupLogFile = new File(Configuration.getInstance().getProperty(Constants.BACKUP_LOG_KEY));
         if (backupLogFile.exists()) {
             try {
-                FileUtils.copyFile(backupLogFile, new File(environment.getBackupLogBak()));
+                FileUtils.copyFile(backupLogFile, new File(Configuration.getInstance().getProperty(Constants.BACKUP_LOG_BAK_KEY)));
                 FileUtils.writeByteArrayToFile(backupLogFile, bytes);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -53,8 +52,7 @@ public class FlatFileBackupStore extends AbstractBackupStore {
 
     @Override
     public synchronized List<Backup> getBackups() {
-        BackupEnvironment environment = Configuration.getInstance().getBackupEnvironment();
-        File file = new File(environment.getBackupLog());
+        File file = new File(Configuration.getInstance().getProperty(Constants.BACKUP_LOG_KEY));
         if (file.exists()) {
             try {
                 byte[] bytes = FileUtils.readFileToByteArray(file);

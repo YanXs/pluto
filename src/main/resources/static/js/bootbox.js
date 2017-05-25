@@ -60,7 +60,7 @@
       email:
         "<input class='bootbox-input bootbox-input-email form-control' autocomplete='off' type='email' />",
       select:
-        "<select class='bootbox-input bootbox-input-select form-control'></select>",
+        "<input style='margin-bottom:20px;' class='bootbox-input bootbox-input-text form-control' autocomplete=off type=text   placeholder='请输入名字'/><select class='bootbox-input bootbox-input-select form-control' ></select>",
       checkbox:
         "<div class='checkbox'><label><input class='bootbox-input bootbox-input-checkbox' type='checkbox' /></label></div>",
       date:
@@ -413,10 +413,17 @@
       var value;
 
       if (options.inputType === "checkbox") {
-        value = input.find("input:checked").map(function() {
+        var value={};
+        value.text = input.find(".bootbox-input-text").val();
+        value.checkbox = input.find("input:checked").map(function() {
           return $(this).val();
         }).get();
-      } else {
+        //console.log(value);
+      } else if(options.inputType === "select"){
+        var value={};
+        value.text = input.parent().find(".bootbox-input-text").val();
+        value.selection = input.parent().find(".bootbox-input-select").val();
+      }else{
         value = input.val();
       }
 
@@ -493,6 +500,7 @@
 
         // safe to set a select's value as per a normal input
         input.val(options.value);
+
         break;
 
       case "checkbox":
@@ -511,7 +519,7 @@
         // they break the rules a bit and we end up re-assigning
         // our 'input' element to this container instead
         input = $("<div/>");
-
+        input.append("<input class='bootbox-input bootbox-input-text form-control' autocomplete=off type=text />");
         each(inputOptions, function(_, option) {
           var checkbox = $(templates.inputs[options.inputType]);
 

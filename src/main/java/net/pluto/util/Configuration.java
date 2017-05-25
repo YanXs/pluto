@@ -5,6 +5,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import java.io.File;
+import java.util.Collection;
 
 public class Configuration {
 
@@ -12,7 +13,7 @@ public class Configuration {
 
     private static final Configuration CONFIGURATION = new Configuration();
 
-    private BackupEnvironment backupEnvironment;
+    private final BackupEnvironmentNavigator navigator = new BackupEnvironmentNavigator();
 
     public static Configuration getInstance() {
         return CONFIGURATION;
@@ -30,12 +31,21 @@ public class Configuration {
         CONFIG.setProperty(key, value);
     }
 
-    public BackupEnvironment getBackupEnvironment() {
-        return backupEnvironment;
+    public void addEnvironment(BackupEnvironment environment) {
+        navigator.add(environment);
     }
 
-    public void setBackupEnvironment(BackupEnvironment backupEnvironment) {
-        this.backupEnvironment = backupEnvironment;
+    public BackupEnvironment getBackupEnvironment(String instance) {
+        BackupEnvironment environment = navigator.get(instance);
+        if (environment == null) {
+            throw new IllegalStateException("wrong argument instance: { " + instance + " }" +
+                    "please check backup-environment.json");
+        }
+        return environment;
+    }
+
+    public Collection<BackupEnvironment> backupEnvironments() {
+        return navigator.backupEnvironments();
     }
 
     /**

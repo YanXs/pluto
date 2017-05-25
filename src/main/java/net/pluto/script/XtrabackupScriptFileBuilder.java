@@ -60,16 +60,16 @@ public class XtrabackupScriptFileBuilder {
         return prepareFile(backupBashFile, fileBuilder);
     }
 
-    public synchronized File buildFullRestoreScriptFile(ScriptParameter parameter) {
+    public synchronized File buildFullRestoreScriptFile(ScriptParameter parameter, BackupEnvironment backupEnvironment) {
         ScriptStringBuilder fileBuilder = new ScriptStringBuilder();
         fileBuilder.appendWithLineFeed(BASH_HEAD);
         String tmpLog = newTmpLog();
         fileBuilder.appendWithLineFeed(createFunc_print_and_clear(tmpLog));
         fileBuilder.appendWithLineFeed(createFunc_check_result(tmpLog));
-        fileBuilder.appendWithLineFeed(createFunc_shutdown_mysql());
-        fileBuilder.appendWithLineFeed(createFunc_move_data_dir());
-        fileBuilder.appendWithLineFeed(createFunc_make_data_dir());
-        fileBuilder.appendWithLineFeed(createFunc_startup_mysql());
+        fileBuilder.appendWithLineFeed(createFunc_shutdown_mysql(backupEnvironment));
+        fileBuilder.appendWithLineFeed(createFunc_move_data_dir(backupEnvironment));
+        fileBuilder.appendWithLineFeed(createFunc_make_data_dir(backupEnvironment));
+        fileBuilder.appendWithLineFeed(createFunc_startup_mysql(backupEnvironment));
         fileBuilder.appendWithLineFeed(FUNC_SHUTDOWN_MYSQL);
         fileBuilder.appendWithLineFeed(FUNC_MOVE_DATA_DIR);
         fileBuilder.appendWithLineFeed(FUNC_MAKE_DATA_DIR);
@@ -85,20 +85,17 @@ public class XtrabackupScriptFileBuilder {
         return prepareFile(restoreBashFile, fileBuilder);
     }
 
-    public synchronized File buildPartialRestoreScriptFile(ScriptParameter parameter) {
+    public synchronized File buildPartialRestoreScriptFile(ScriptParameter parameter, BackupEnvironment backupEnvironment) {
         ScriptStringBuilder fileBuilder = new ScriptStringBuilder();
         fileBuilder.appendWithLineFeed(BASH_HEAD);
         String tmpLog = newTmpLog();
         fileBuilder.appendWithLineFeed(createFunc_print_and_clear(tmpLog));
         fileBuilder.appendWithLineFeed(createFunc_check_result(tmpLog));
-        fileBuilder.appendWithLineFeed(createFunc_shutdown_mysql());
-        fileBuilder.appendWithLineFeed(createFunc_startup_mysql());
+        fileBuilder.appendWithLineFeed(createFunc_shutdown_mysql(backupEnvironment));
+        fileBuilder.appendWithLineFeed(createFunc_startup_mysql(backupEnvironment));
         fileBuilder.appendWithLineFeed(FUNC_SHUTDOWN_MYSQL);
-        fileBuilder.appendWithLineFeed(createApplyLogCommand(parameter, tmpLog));
-        fileBuilder.appendWithLineFeed(FUNC_CHECK_RESULT);
-        fileBuilder.appendWithLineFeed(FUNC_PRINT_AND_CLEAR);
         // cp -rf
-        fileBuilder.appendWithLineFeed(replaceOriginalFile(parameter));
+        fileBuilder.appendWithLineFeed(replaceOriginalFile(parameter, backupEnvironment));
         fileBuilder.appendWithLineFeed(FUNC_STARTUP_MYSQL);
         String scriptDir = Configuration.getInstance().getProperty(Constants.EXECUTABLE_SCRIPT_DIR_KEY);
         String restoreBashFile = scriptDir + "/" + "partial_restore.sh";
@@ -110,7 +107,7 @@ public class XtrabackupScriptFileBuilder {
         File file = new File(path);
         try {
             FileUtils.writeByteArrayToFile(file, fileBuilder.toString().getBytes("UTF-8"));
-            file.setExecutable(true, true);
+            file.setExecutable(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -143,8 +140,7 @@ public class XtrabackupScriptFileBuilder {
         return builder.toString();
     }
 
-    private String createFunc_shutdown_mysql() {
-        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment();
+    private String createFunc_shutdown_mysql(BackupEnvironment backupEnvironment) {
         ScriptStringBuilder builder = new ScriptStringBuilder();
         builder.appendWithLineFeed(FUNC_SHUTDOWN_MYSQL + "()");
         builder.appendWithLineFeed("{");
@@ -155,8 +151,7 @@ public class XtrabackupScriptFileBuilder {
         return builder.toString();
     }
 
-    private String createFunc_move_data_dir() {
-        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment();
+    private String createFunc_move_data_dir(BackupEnvironment backupEnvironment) {
         ScriptStringBuilder builder = new ScriptStringBuilder();
         builder.appendWithLineFeed(FUNC_MOVE_DATA_DIR + "()");
         builder.appendWithLineFeed("{");
@@ -165,17 +160,14 @@ public class XtrabackupScriptFileBuilder {
         builder.appendWithLineFeed("fi");
 
         builder.appendWithLineFeed("if [ -d " + backupEnvironment.getDataDir() + " ]; then");
-        builder.appendWithWhitespace(COMMAND_MOVE)
-                .appendWithWhitespace(backupEnvironment.getDataDir())
-                .appendWithLineFeed(backupEnvironment.getDataBakDir());
+        builder.appendWithWhitespace(COMMAND_MOVE).appendWithWhitespace(backupEnvironment.getDataDir()).appendWithLineFeed(backupEnvironment.getDataBakDir());
         builder.appendWithLineFeed("fi");
         builder.appendWithLineFeed("}");
         return builder.toString();
     }
 
 
-    private String createFunc_make_data_dir() {
-        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment();
+    private String createFunc_make_data_dir(BackupEnvironment backupEnvironment) {
         ScriptStringBuilder builder = new ScriptStringBuilder();
         builder.appendWithLineFeed(FUNC_MAKE_DATA_DIR + "()");
         builder.appendWithLineFeed("{");
@@ -184,21 +176,18 @@ public class XtrabackupScriptFileBuilder {
         return builder.toString();
     }
 
-    private String createFunc_startup_mysql() {
-        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment();
+    private String createFunc_startup_mysql(BackupEnvironment backupEnvironment) {
         ScriptStringBuilder builder = new ScriptStringBuilder();
         builder.appendWithLineFeed(FUNC_STARTUP_MYSQL + "()");
         builder.appendWithLineFeed("{");
-        builder.appendWithWhitespace(COMMAND_CHANGE_OWNER)
-                .appendWithWhitespace(backupEnvironment.getMysqlGroup() + ":" + backupEnvironment.getMysqlUser())
+        builder.appendWithWhitespace(COMMAND_CHANGE_OWNER).appendWithWhitespace(backupEnvironment.getMysqlGroup() + ":" + backupEnvironment.getMysqlUser())
                 .appendWithLineFeed(backupEnvironment.getDataDir());
         builder.appendWithLineFeed(backupEnvironment.getStartupCommand());
         builder.appendWithLineFeed("}");
         return builder.toString();
     }
 
-    private String replaceOriginalFile(ScriptParameter parameter) {
-        BackupEnvironment backupEnvironment = Configuration.getInstance().getBackupEnvironment();
+    private String replaceOriginalFile(ScriptParameter parameter, BackupEnvironment backupEnvironment) {
         ScriptStringBuilder builder = new ScriptStringBuilder();
         builder.appendWithWhitespace(COMMAND_REPLACE_CORY).
                 appendWithWhitespace(parameter.getPair(ScriptParameter.PARAM_BASE_DIR).value() + "/.")

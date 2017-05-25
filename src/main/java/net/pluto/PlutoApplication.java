@@ -7,11 +7,13 @@ import net.pluto.util.BackupEnvironmentCodec;
 import net.pluto.util.Codec;
 import net.pluto.util.Configuration;
 import net.pluto.util.Constants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 
 import java.io.File;
+import java.util.List;
 
 public class PlutoApplication {
 
@@ -57,11 +59,14 @@ public class PlutoApplication {
         if (!file.exists()) {
             throw new ConfigurationException("backup-environment.json does not exist");
         }
-        BackupEnvironment backupEnvironment = CODEC.read(FileUtils.readFileToByteArray(file), BackupEnvironment.class);
+        List<BackupEnvironment> backupEnvironments = CODEC.readBackupEnvironments(FileUtils.readFileToByteArray(file));
 
-        if (backupEnvironment == null) {
+        if (CollectionUtils.isEmpty(backupEnvironments)) {
             throw new ConfigurationException("backup-environment.json is empty");
         }
-        Configuration.getInstance().setBackupEnvironment(backupEnvironment);
+
+        for (BackupEnvironment environment : backupEnvironments){
+            Configuration.getInstance().addEnvironment(environment);
+        }
     }
 }

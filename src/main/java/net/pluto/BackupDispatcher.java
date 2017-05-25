@@ -1,15 +1,22 @@
 package net.pluto;
 
+
+import com.chinaamc.ta.util.GenericResult;
 import net.pluto.backup.Backup;
+import net.pluto.backup.BackupEnvironment;
 import net.pluto.backup.BackupExecutor;
 import net.pluto.backup.BackupType;
+import net.pluto.util.Configuration;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,22 +30,24 @@ public class BackupDispatcher {
     private BackupExecutor backupExecutor;
 
     @RequestMapping("full/backup")
-    public GenericResult fullBackup(@RequestParam("name") String name) {
-        return doBackup(name, BackupType.Full, Collections.<String>emptyList());
+    public GenericResult fullBackup(@RequestParam("name") String name, @RequestParam("instance") String instance) {
+        Assert.notNull(name, "backup name must not be null");
+        Assert.notNull(instance, "instance must not be null");
+        return doBackup(name, instance, BackupType.Full, Collections.<String>emptyList());
     }
 
     @RequestMapping("incremental/backup")
     public GenericResult incrementalBackup(@RequestParam("name") String name) {
-        return doBackup(name, BackupType.Incremental, Collections.<String>emptyList());
+        throw new UnsupportedOperationException("incremental backup unsupported");
     }
 
     @RequestMapping("partial/backup")
     public GenericResult partialBackup(@RequestParam("name") String name,
                                        @RequestParam(value = "databases") List<String> databases) {
-        return doBackup(name, BackupType.Partial, databases);
+        throw new UnsupportedOperationException("partial backup unsupported");
     }
 
-    private GenericResult doBackup(String name, BackupType backupType, List<String> databases) {
+    private GenericResult doBackup(String name, String instance, BackupType backupType, List<String> databases) {
         GenericResult result = new GenericResult();
         if (isWorking) {
             result.setCode(GenericResult.CODE_PENDING);
@@ -48,7 +57,7 @@ public class BackupDispatcher {
         isWorking = true;
         Backup.Builder builder = new Backup.Builder();
         try {
-            backupExecutor.executeBackup(builder.name(name).backupType(backupType).build(), databases);
+            backupExecutor.executeBackup(builder.name(name).instance(instance).backupType(backupType).build(), databases);
             result.setCode(GenericResult.CODE_OK);
             result.setMessage("backup completed");
         } catch (Exception e) {
@@ -60,8 +69,8 @@ public class BackupDispatcher {
         return result;
     }
 
-    @RequestMapping("rollback")
-    public GenericResult rollback(@RequestParam("id") String id) {
+    @RequestMapping("restore")
+    public GenericResult restore(@RequestParam("id") String id) {
         GenericResult result = new GenericResult();
         if (isWorking) {
             result.setCode(GenericResult.CODE_PENDING);
@@ -71,7 +80,7 @@ public class BackupDispatcher {
         isWorking = true;
         try {
             long start = System.currentTimeMillis();
-            if (backupExecutor.executeRollback(id)) {
+            if (backupExecutor.executeRestore(id)) {
                 result.setCode(GenericResult.CODE_OK);
                 long duration = (System.currentTimeMillis() - start) / 1000;
                 result.setMessage("rollback completed in " + duration + " seconds");
@@ -100,7 +109,7 @@ public class BackupDispatcher {
     }
 
     @RequestMapping(value = "/delete")
-    public GenericResult deleteBackup(@RequestParam(value = "ids") List<String> ids) {
+    public GenericResult deleteBackup(@RequestParam(value = "ids[]") List<String> ids) {
         GenericResult result = new GenericResult();
         if (ids.size() == 0) {
             result.setCode(GenericResult.CODE_ERROR);
@@ -108,7 +117,7 @@ public class BackupDispatcher {
         } else {
             if (isWorking) {
                 result.setCode(GenericResult.CODE_PENDING);
-                result.setMessage("please wait until backup or restore finish");
+                result.setMessage("please wait backup or restore finish");
                 return result;
             }
             isWorking = true;
@@ -126,9 +135,22 @@ public class BackupDispatcher {
             }
             if (deleteSucceeded) {
                 result.setCode(GenericResult.CODE_OK);
-                result.setMessage("all chosen backups were deleted");
+                result.setMessage("all chosen backups deleted");
             }
         }
+        return result;
+    }
+
+    @RequestMapping(value = "/instances", method = RequestMethod.GET)
+    public GenericResult getInstances() {
+        GenericResult result = new GenericResult();
+        Collection<BackupEnvironment> instances = Configuration.getInstance().backupEnvironments();
+        List<String> names = new ArrayList<>();
+        for (BackupEnvironment environment : instances) {
+            names.add(environment.getInstance());
+        }
+        result.setCode(GenericResult.CODE_OK);
+        result.setContent(names);
         return result;
     }
 }

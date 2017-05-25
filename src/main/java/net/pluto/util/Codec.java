@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 public interface Codec {
 
-    JsonCodec JSON = new JsonCodec();
+    Codec JSON = new JsonCodec();
 
     byte[] write(Object value);
 
